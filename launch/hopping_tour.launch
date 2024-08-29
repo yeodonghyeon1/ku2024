@@ -10,19 +10,20 @@
 	<!-- <include file="$(find ntrip_ros)/launch/ntrip_ros.launch"></include> -->
 	<include file="$(find ntrip_ros)/launch/fake_gps.launch"></include>
 
+	<include file="$(find iahrs_driver)/launch/iahrs_driver.launch"></include>
 
 	<!--IMU-->
-	<node pkg="iahrs_driver" type="iahrs_driver" name="iahrs_driver">
+	<!-- <node pkg="iahrs_driver" type="iahrs_driver" name="iahrs_driver">
 		<param name="port" value="/dev/ttyIMU" />
 		<param name="baud_rate" value="115200" />
-	</node>
+	</node> -->
 
 	<!-- Nodes -->
 	<!-- <node pkg="ku2023"  type="heading_calculator.py" name="headingCalculator" respawn="true"/> -->
 	<node pkg="ku2023"  type="heading_calculator_iahrs.py" name="headingCalculator" respawn="true" />
 	<node pkg="ku2023"  type="gnss_converter.py" name="gnssConverter" respawn="true"/>
 	<!--<node pkg="ku2023" type="serial_com.py" name="serial_can" respawn="true"/> -->
-	<!--<node pkg="ku2023" type="serial_node.py" name="ARDUINO" args="/dev/ttyARDUINO" respawn="true"/>  -->
+	<node pkg="ku2023" type="serial_node.py" name="ARDUINO" args="/dev/ttyARDUINO" respawn="true"/> 
 	<!-- 2022 version -->
 	<node pkg="ku2023" type="hopping_tour.py" name="hoppingTour" output="screen"/>
 	<!-- 2021 version -->

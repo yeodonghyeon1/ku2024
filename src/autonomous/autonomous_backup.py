@@ -22,7 +22,7 @@
 import math
 import os
 import sys
-
+import signal
 import rospy
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -147,7 +147,7 @@ class Autonomous:
         # self.psi = moving_avg_filter(
         #     self.heading_queue, self.filter_queue_size, msg.data
         # )  # [deg]
-        self.psi = msg.data
+        self.psi = -(msg.data - 50)
 
     def boat_position_callback(self, msg):
         """GPS로 측정한 배의 ENU 변환 좌표 콜백함수
@@ -267,9 +267,15 @@ class Autonomous:
         self.goal_x = self.remained_waypoints[self.waypoint_idx][0]
         self.goal_y = self.remained_waypoints[self.waypoint_idx][1]
 
-
-
+def shutdown():
+    auto.thrusterL_pub.publish(1500)
+    auto.thrusterR_pub.publish(1500)
+    auto.thrusterL_pub.publish(1500)
+    auto.thrusterR_pub.publish(1500)
+    print("press ctrl c ")
+    sys.exit(0)
 def main():
+    global auto
     rospy.init_node("autonomous", anonymous=False)
     start_time = rospy.get_time()
     auto = Autonomous()
@@ -302,7 +308,9 @@ def main():
                 ###move and add the next goal
                 # 현재 heading에서 목표로 갈 때 돌려야 할 각도 업데이트
                 auto.psi_goal = math.degrees(math.atan2(auto.goal_y - auto.boat_y, auto.goal_x - auto.boat_x)) - auto.psi
+                print("first", auto.psi_goal)
                 auto.psi_goal = rearrange_angle(auto.psi_goal)
+                print("second", auto.psi_goal)
 
                 if auto.waypoint_idx == 1 and imu_fix:
                     fix_imu = auto.psi_goal
@@ -368,6 +376,8 @@ def main():
                 elif error_angle>4.0: #go left
                     thruster_speed_L= 1400
                     thruster_speed_R= 1650
+                print("thruster_speed_L", thruster_speed_L)
+                print("thruster_speed_R", thruster_speed_R)
             #----------------------------------------------------------------------------
 
             #----------------------------------------------------------------------------
@@ -414,6 +424,9 @@ def main():
                 all_markers = av.visualize(auto)
                 auto.visual_rviz_pub.publish(all_markers)
             rate.sleep()
+    rospy.on_shutdown(shutdown)
+    
+
 
 
 if __name__ == "__main__":

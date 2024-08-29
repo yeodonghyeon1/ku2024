@@ -91,8 +91,8 @@ class Hopping:
 
         # publishers
         self.servo_pub = rospy.Publisher("/servo", UInt8, queue_size=1)
-        self.thrusterL_pub = rospy.Publisher("/thrusterL", UInt8, queue_size=1)
-        #self.thrusterR_pub = rospy.Publisher("/thrusterR", UInt16, queue_size=0)
+        self.thrusterL_pub = rospy.Publisher("/thrusterL", UInt16, queue_size=1)
+        # self.thrusterR_pub = rospy.Publisher("/thrusterR", UInt16, queue_size=1)
         self.visual_rviz_pub = rospy.Publisher("/visual_rviz", MarkerArray, queue_size=1)
 
         # presetting
@@ -267,7 +267,8 @@ class Hopping:
         self.u_thruster = self.distance_PID()
 
         self.servo_pub.publish(int(self.u_servo))
-        self.thrusterL_pub.publish(int(self.u_thruster))
+        self.thrusterL_pub.publish(int(self.u_thruster)+ 1500)
+        
         #self.thrusterR_pub.publish(int(self.u_thruster))
 
     def print_state(self, visualize=False):

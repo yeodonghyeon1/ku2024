@@ -12,12 +12,16 @@ import rospy
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Float64
 import tf
+from tf2_msgs.msg import TFMessage
 
 class HeadingAngle:
     def __init__(self):
-        rospy.Subscriber("/imu/data", Imu, self.IMU_callback, queue_size=1) #edit
+        # rospy.Subscriber("/imu/data", Imu, self.IMU_callback, queue_size=1) #edit
+        rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit
+        
         # rospy.Subscriber("/imu_fix",Float64,self.IMU_Fix_callback,queue_size=1 )
         self.pub = rospy.Publisher("/heading", Float64, queue_size=0)
+        self.pub2 = rospy.Publisher("/one", TFMessage, queue_size=1)
 
         self.orientation_x = 0.0
         self.orientation_y = 0.0
@@ -29,6 +33,12 @@ class HeadingAngle:
         self.orientation_x = imu.orientation.x 
         self.orientation_y = imu.orientation.y
         self.orientation_z = imu.orientation.z 
+
+    def tf_callback(self, data):
+        self.orientation_x = data.transforms[0].transform.rotation.x 
+        self.orientation_y = data.transforms[0].transform.rotation.y
+        self.orientation_z = data.transforms[0].transform.rotation.z
+
 
     def IMU_Fix_callback(self,fix):
         self.imu_fix =  fix.data
@@ -180,14 +190,16 @@ class HeadingAngle:
 
 def main():
     rospy.init_node("heading_calculator", anonymous=False)
-    rate = rospy.Rate(10)  # 10 Hz
+    rate = rospy.Rate(20)  # 10 Hz
     heading = HeadingAngle()
 
     while not rospy.is_shutdown():
-        heading_angle = heading.calculate_heading_angle()
-        # heading_angle = heading.orientation_z * (-380/math.pi) + heading.imu_fix
-        # heading_angle = heading.orientation_z * -180 + heading.imu_fix
-        heading.pub.publish(round(heading_angle, 3))
+        # heading_angle = heading.calculate_heading_angle()
+        # heading_angle = heading.orientation_z * (180/math.pi)
+        heading_angle = heading.orientation_z * 180
+        heading.pub.publish(heading_angle)
+        # heading.pub.publish(round(heading_angle, -1))
+
         rate.sleep()
 
 if __name__ == "__main__":

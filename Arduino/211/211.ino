@@ -65,6 +65,11 @@ void setup()
 
 void loop()
 {
+//  if(Serial.available() < 0){
+//    thruster1.writeMicroseconds(1500);
+//    thruster2.writeMicroseconds(1500);
+//  }
+//  
   //  int signal_v = 1700;
   //  thruster1.writeMicroseconds(signal_v);//1100-1900
   //  thruster2.writeMicroseconds(1600);//1100-1900

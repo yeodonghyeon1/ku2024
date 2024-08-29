@@ -54,9 +54,10 @@ Notes:
 
 import os
 import sys
-
+import tf
 import cv2
 import rospy
+from std_msgs.msg import Float64
 from sensor_msgs.msg import LaserScan
 from visualization_msgs.msg import MarkerArray
 
@@ -66,7 +67,7 @@ import utils.visualizer as visual
 from datatypes.point_class import *
 from datatypes.point_set_class import *
 from ku2023.msg import Obstacle, ObstacleList
-
+from tf2_msgs.msg import TFMessage
 
 class Lidar_Converter:
     def __init__(self):
@@ -74,6 +75,7 @@ class Lidar_Converter:
         rospy.Subscriber("/scan", LaserScan, self.lidar_raw_callback, queue_size=1)
         self.obstacle_pub = rospy.Publisher("/obstacles", ObstacleList, queue_size=10)
         self.rviz_pub = rospy.Publisher("/rviz_visual", MarkerArray, queue_size=10)
+        rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit
 
         # params
         self.max_gap_in_set = rospy.get_param("max_gap_in_set")
@@ -107,6 +109,30 @@ class Lidar_Converter:
             cv2.createTrackbar(
                 "wall_particle_length", "controller", rospy.get_param("wall_particle_length"), 50, lambda x: x
             )  # X 0.1 meter
+
+    def tf_broadcast(self, trans, rot, child_input, parent_input):
+        self.tf_broadcaster = tf.TransformBroadcaster()
+        self.tf_broadcaster.sendTransform(
+            translation=trans,
+            rotation = rot,
+            time=rospy.Time.now(),
+            child=child_input,
+            parent=parent_input
+        )
+    def tf_callback(self, data):
+
+        t_x = data.transforms[0].transform.translation.x 
+        t_y = data.transforms[0].transform.translation.x 
+        t_z = data.transforms[0].transform.translation.x 
+        o_x = data.transforms[0].transform.rotation.x 
+        o_y = data.transforms[0].transform.rotation.y
+        o_z = data.transforms[0].transform.rotation.z 
+        o_w = data.transforms[0].transform.rotation.w
+    
+        
+        self.tf_broadcast([t_x,t_y,t_z], [o_x,o_y, o_z,o_w], "velodyne" ,"map")
+        # self.tf_broadcast([t_x,t_y,t_z], [o_x,o_y, o_z,o_w], "obstacles" ,"base_link")
+
 
     def get_trackbar_pos(self):
         """get trackbar positions and set each values"""

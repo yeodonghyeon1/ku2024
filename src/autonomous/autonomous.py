@@ -170,7 +170,7 @@ class Autonomous:
         # self.psi = moving_avg_filter(
         #     self.heading_queue, self.filter_queue_size, msg.data
         # )  # [deg]
-        self.psi = msg.data
+        self.psi = -msg.data
 
     def boat_position_callback(self, msg):
         """GPS로 측정한 배의 ENU 변환 좌표 콜백함수
@@ -536,9 +536,10 @@ def main():
                 # need the value to 1200~1800 maybe use map
                 #original value 
 
-                thruster_speed_L = (thruster_speed_L * 250) + 1000
-                thruster_speed_R = (thruster_speed_R * 250) + 1000
-                
+                thruster_speed_L = (thruster_speed_L * 250) + 800
+                thruster_speed_R = (thruster_speed_R * 250) + 800
+                print(thruster_speed_L)
+                print(thruster_speed_R)    
                 auto.thrusterL_pub.publish(thruster_speed_L)
                 auto.thrusterR_pub.publish(thruster_speed_R)
 
