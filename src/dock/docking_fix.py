@@ -188,7 +188,7 @@ class Docking:
         self.thruster_speed_L= 1500
         self.thruster_speed_R= 1500
         # current status
-        self.state = 5
+        self.state = 4
         # 0: 장애물 회피
         # 1: 스테이션1로 이동 중
         # 2: 스테이션2로 이동 중
@@ -234,7 +234,11 @@ class Docking:
         img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         if img.size == (640 * 480 * 3):
             self.raw_img = img
-        else:
+            # check_img = img
+            # check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
+            # print(self.raw_img[320, 240])
+            # cv2.imshow("img", check_img)
+          
             pass
 
     def get_trackbar_pos(self):
@@ -511,7 +515,6 @@ class Docking:
         cv2.moveWindow("controller", 0, 0)
         if self.state in [5, 6]:
             raw_img = cv2.resize(self.raw_img, dsize=(0, 0), fx=0.5, fy=0.5)  # 카메라 데이터 원본
-            cv2.imshow("222",raw_img)
             hsv_img = cv2.resize(self.hsv_img, dsize=(0, 0), fx=0.5, fy=0.5)  # 색 추출 결과
             hsv_img = cv2.cvtColor(hsv_img, cv2.COLOR_GRAY2BGR)
             col1 = np.vstack([raw_img, hsv_img])
@@ -542,7 +545,7 @@ def main():
     while not rospy.is_shutdown():
         docking.trajectory.append([docking.boat_x, docking.boat_y])  # 이동 경로 추가
         docking.show_window()
-        print(docking.state)
+        # print(docking.state)
         change_state = docking.check_state()  # 현재 상태 점검 및 변경
         #docking.state = 5
         # 일부 변수 초기화
@@ -638,8 +641,8 @@ def main():
                     docking.target = []  # 타겟 정보 초기화(못 찾음)
                     docking.target_found = False  # 타겟 미발견 플래그
                     rospy.sleep(0.2)
-                    docking.thrusterL_pub.publish(1600)
-                    docking.thrusterR_pub.publish(1600)
+                    docking.thrusterL_pub.publish(1550)
+                    docking.thrusterR_pub.publish(1550)
                     rospy.sleep(1)
 
             # 아직 충분히 탐색하기 전
@@ -817,8 +820,8 @@ def main():
             # 선속 결정
             #u_thruster = docking.thruster_station
 
-        docking.thrusterL_pub.publish(docking.thruster_speed_L)
-        docking.thrusterR_pub.publish(docking.thruster_speed_R)
+        docking.thrusterR_pub.publish(docking.thruster_speed_L)
+        docking.thrusterL_pub.publish(docking.thruster_speed_R)
 
         # 각 모드에서 계산한 error_angle을 바탕으로 월드좌표계로 '가야 할 각도'를 계산함
         docking.psi_desire = rearrange_angle(docking.psi + error_angle)

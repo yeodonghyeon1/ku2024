@@ -122,7 +122,9 @@ def enu_convert(gnss):
 def main():
     rospy.init_node("gnss_converter", anonymous=True)
     # rospy.Subscriber("/imu/data", Imu, imu_ang_vel_callback, queue_size=1)
-    rospy.Subscriber("/ublox_gps/fix", NavSatFix, gps_fix_callback, queue_size=1)
+    # rospy.Subscriber("/ublox_gps/fix", NavSatFix, gps_fix_callback, queue_size=1)
+    rospy.Subscriber("/gps/filtered", NavSatFix, gps_fix_callback, queue_size=1)
+
     # rospy.Subscriber("/ublox_gps/rtcm", Message, gps_fix_callback, queue_size=1)
 
     pub = rospy.Publisher("enu_position", Point, queue_size=10)

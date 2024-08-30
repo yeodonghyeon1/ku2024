@@ -13,26 +13,42 @@ from sensor_msgs.msg import Imu
 from std_msgs.msg import Float64
 import tf
 from tf2_msgs.msg import TFMessage
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 class HeadingAngle:
     def __init__(self):
-        # rospy.Subscriber("/imu/data", Imu, self.IMU_callback, queue_size=1) #edit
-        rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit
+        rospy.Subscriber("/imu/data", Imu, self.IMU_callback, queue_size=1) #edit
+        # rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit
         
         # rospy.Subscriber("/imu_fix",Float64,self.IMU_Fix_callback,queue_size=1 )
         self.pub = rospy.Publisher("/heading", Float64, queue_size=0)
         self.pub2 = rospy.Publisher("/one", TFMessage, queue_size=1)
+        self.pub_imu = rospy.Publisher("/imu/frame_trans", Imu, queue_size=1)
 
+
+        self.imu = Imu()
         self.orientation_x = 0.0
         self.orientation_y = 0.0
         self.orientation_z = 0.0 
         self.last_heading_angle = 0.0
         self.imu_fix = 0.0
 
+        self.roll = 0
+        self.pitch = 0
+        self.yaw = 0
     def IMU_callback(self, imu):
-        self.orientation_x = imu.orientation.x 
-        self.orientation_y = imu.orientation.y
-        self.orientation_z = imu.orientation.z 
+        # self.orientation_x = imu.orientation.x 
+        # self.orientation_y = imu.orientation.y
+        # self.orientation_z = imu.orientation.z 
+        orientation_q = imu.orientation
+        orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+        (self.roll, self.pitch, self.yaw) = euler_from_quaternion (orientation_list)
+        
+        self.imu = imu
+        self.imu.header.frame_id = "base_link"
+        
+        self.pub_imu.publish(self.imu)
+        # self.imu = imu.frame    
 
     def tf_callback(self, data):
         self.orientation_x = data.transforms[0].transform.rotation.x 
@@ -42,6 +58,7 @@ class HeadingAngle:
 
     def IMU_Fix_callback(self,fix):
         self.imu_fix =  fix.data
+        
 
     def getRotationMatrix(self, R, I, gravity, geomagnetic):
         Ax = gravity[0]
@@ -192,11 +209,12 @@ def main():
     rospy.init_node("heading_calculator", anonymous=False)
     rate = rospy.Rate(20)  # 10 Hz
     heading = HeadingAngle()
-
+ 
     while not rospy.is_shutdown():
         # heading_angle = heading.calculate_heading_angle()
         # heading_angle = heading.orientation_z * (180/math.pi)
-        heading_angle = heading.orientation_z * 180
+        # heading_angle = heading.orientation_z * 180
+        heading_angle = heading.yaw * (180/math.pi)
         heading.pub.publish(heading_angle)
         # heading.pub.publish(round(heading_angle, -1))
 

@@ -2,7 +2,7 @@
 arrival_range: 1
 
 # 장애물 탐지 (거리) 범위 (meters)
-ob_dist_range : 5
+ob_dist_range : 4
 
 # 장애물 탐지 (각도) 범위 (deg)
 ob_angle_range : [-100, 100]
@@ -48,6 +48,16 @@ color_range : {
     color3_lower: 0,
     color3_upper: 255
   },
+
+  red_2: {
+    color1_lower: 134,
+    color1_upper: 232,
+    color2_lower: 135,
+    color2_upper: 255,
+    color3_lower: 132,
+    color3_upper: 255
+  },
+
   green: {
     color1_lower: 40, 
     color1_upper: 100,
@@ -64,6 +74,31 @@ color_range : {
     color3_lower: 0,
     color3_upper: 255
   },
+  Light_sky_blue: {
+    color1_lower: 135,
+    color1_upper: 255,
+    color2_lower: 206,
+    color2_upper: 255,
+    color3_lower: 235,
+    color3_upper: 255
+   },
+    pastel_blue: {
+    color1_lower: 173,
+    color1_upper: 255,
+    color2_lower: 216,
+    color2_upper: 255,
+    color3_lower: 230,
+    color3_upper: 255
+   },
+    light_cyan: {
+    color1_lower: 224,
+    color1_upper: 255,
+    color2_lower: 255,
+    color2_upper: 255,
+    color3_lower: 235,
+    color3_upper: 255
+   },
+  
 
   black: {
     color1_lower: 0,
@@ -99,19 +134,18 @@ color_range : {
 target_shape: 8
 
 # 목표 색깔 (red, green, blue, black, black2, orange)
-target_color: green
+target_color: red
 
 # 인식 최소 크기 (최소 이만큼은 되어야 인지 시작, 이보다 작으면 무시)
 mark_detect_area: 200
-
 # 타겟 인정 크기 (최소 이만큼은 되어야 타겟이라고 인정)
-target_detect_area: 1000
+target_detect_area: 250
 
 # 타겟 판단 대기 시간 (루프 반복 횟수) roof
 target_detect_time: 100
 
 # 타겟 판단 임곗값 (루프 반복 횟수)(target_detect_time 중 이만큼은 되어야 타겟 발견으로 인정)
-target_detect_cnt: 50
+target_detect_cnt: 10
 
 # 실시간 인식 현황 시각화 여부
 draw_contour: True

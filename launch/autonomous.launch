@@ -21,6 +21,9 @@
 	<include file="$(find iahrs_driver)/launch/iahrs_driver.launch"></include>
 
 
+	<include file="$(find tractor_localization)/launch/localization.launch"></include>
+
+
 	<!--IMU-->
 	<!-- <node pkg="iahrs_driver" type="iahrs_driver" name="iahrs_driver">
 		<param name="port" value="/dev/ttyIMU" />

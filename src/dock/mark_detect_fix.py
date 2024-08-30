@@ -21,7 +21,7 @@
 
 import os
 import sys
-
+import time
 import cv2
 import numpy as np
 
@@ -36,7 +36,7 @@ def mean_brightness(img):
     Returns:
         dst (numpy.ndarray): 평균 밝기가 조절된 이미지
     """
-    fixed = 20  # 이 값 주변으로 평균 밝기 조절함
+    fixed = 15  # 이 값 주변으로 평균 밝기 조절함
     m = cv2.mean(img)  # 평균 밝기
     scalar = (-int(m[0]) + fixed, -int(m[1]) + fixed, -int(m[2]) + fixed, 0)
     dst = cv2.add(img, scalar)
@@ -81,8 +81,10 @@ def select_color(img, range):
         np.ndarray: gray-scale image with specific color range
     """
     #cv2.imshow("before", img)
-    
+    # time.sleep(1)
+    # range[0][0] += 1
     selceted = cv2.inRange(img, range[0], range[1])
+
 
     # img_res = cv2.bitwise_and(~img, ~img, mask = selceted)
     # cv2.imshow("selceted", img_res)
@@ -98,9 +100,12 @@ def is_target(target_shape, target_detect_area, vertex_num, area):
         vertex_num (int): 탐지된 모양
         area (float): 탐지된 넓이
 
-    Retuns:
+    Retuns: 
         bool: True(타겟임) / False(타겟이 아니거나 기준에 못 미침)
     """
+    print("target_detect_area: " ,area)
+
+    
     if (vertex_num == target_shape) and (area >= target_detect_area):
         # 모서리 개수가 일치하고, 넓이가 충분히 크면
         return True
@@ -191,7 +196,7 @@ def detect_target(img, target_shape, mark_detect_area, target_detect_area, draw_
         #cv2.imshow("baa", shapes)
         # 변의 개수
         vertex_num = len(approx)
-        print("# of vertices : {}".format(vertex_num))
+        # print("# of vertices : {}".format(vertex_num))
         #corner = cv2.cornerHarris(shape, 2, 3, 0.04)
         # 탐지 도형 구분
         # 삼각형

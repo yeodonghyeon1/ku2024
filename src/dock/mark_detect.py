@@ -96,8 +96,11 @@ def is_target(target_shape, target_detect_area, vertex_num, area):
     Retuns:
         bool: True(타겟임) / False(타겟이 아니거나 기준에 못 미침)
     """
+    print("target_detect_area: " ,target_detect_area)
+
     if (vertex_num == target_shape) and (area >= target_detect_area):
         # 모서리 개수가 일치하고, 넓이가 충분히 크면
+        #print (target_detect_area)
         return True
     else:
         return False
