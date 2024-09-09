@@ -60,9 +60,8 @@
 	<!-- <node name="rqt" pkg="rqt_graph" type="rqt_graph"/> -->
 
 	<!-- Record -->
-	<!-- <arg name="do_record" default="false" />
-	<node pkg="rosbag" type="record" name="rosbag_record" required="true" args="record /imu/data /imu/mag /scan /ublox_gps/fix /usb_cam/image_raw -O $(find ku2023)/data/rosbag/$(arg filename)" />
-	 -->
+	<node pkg="rosbag" type="record" name="rosbag_record" required="true"  args="-a -o /media/jetson/data/rosbag/"  />
+
 	<!-- Parameters -->
 	<rosparam command="load" file="$(find ku2023)/params/lidar_params.yaml"/>
 	<rosparam command="load" file="$(find ku2023)/params/docking_params.yaml"/>

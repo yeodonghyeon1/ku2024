@@ -72,7 +72,7 @@ from tf2_msgs.msg import TFMessage
 class Lidar_Converter:
     def __init__(self):
         # sub, pub
-        rospy.Subscriber("/scan", LaserScan, self.lidar_raw_callback, queue_size=1)
+        rospy.Subscriber("/pointcloud/scan_data", LaserScan, self.lidar_raw_callback, queue_size=1)
         self.obstacle_pub = rospy.Publisher("/obstacles", ObstacleList, queue_size=10)
         self.rviz_pub = rospy.Publisher("/rviz_visual", MarkerArray, queue_size=10)
         rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit
@@ -122,15 +122,17 @@ class Lidar_Converter:
     def tf_callback(self, data):
 
         t_x = data.transforms[0].transform.translation.x 
-        t_y = data.transforms[0].transform.translation.x 
-        t_z = data.transforms[0].transform.translation.x 
+        t_y = data.transforms[0].transform.translation.y 
+        t_z = data.transforms[0].transform.translation.z 
         o_x = data.transforms[0].transform.rotation.x 
         o_y = data.transforms[0].transform.rotation.y
         o_z = data.transforms[0].transform.rotation.z 
         o_w = data.transforms[0].transform.rotation.w
     
         
-        self.tf_broadcast([t_x,t_y,t_z], [o_x,o_y, o_z,o_w], "velodyne" ,"map")
+        self.tf_broadcast([t_x,t_y,t_z], [o_x,o_y, o_z,o_w], "velodyne" ,"base_link")
+        self.tf_broadcast([t_x,t_y,t_z], [o_x,o_y, o_z,o_w], "base_link" ,"map")
+
         # self.tf_broadcast([t_x,t_y,t_z], [o_x,o_y, o_z,o_w], "obstacles" ,"base_link")
 
 
@@ -159,7 +161,7 @@ class Lidar_Converter:
         self.obstacles = []
 
         # save range data
-        phi = msg.angle_min
+        phi = msg.angle_max
         for r in msg.ranges:
             if msg.range_min <= r <= msg.range_max:
                 p = Point.polar_to_cartesian(r, phi)

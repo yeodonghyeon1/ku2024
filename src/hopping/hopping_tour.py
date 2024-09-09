@@ -158,7 +158,7 @@ class Hopping:
         cd_distance = -self.kd_distance * self.distance_to_goal / 0.1  # dt = rate
 
         u_distance = cp_distance + cd_distance
-        u_thruster = self.thruster_min + u_distance #1500 + 
+        u_thruster = self.thruster_min + u_distance #1500 +  
 
         if u_thruster > self.thruster_max:
             u_thruster = self.thruster_max
@@ -188,7 +188,7 @@ class Hopping:
             print(u_servo)
             #print(1550)
             self.servo_pub.publish(int(self.u_servo))
-            self.thrusterL_pub.publish(40)
+            self.thrusterL_pub.publish(1550)
             #self.thrusterR_pub.publish(0)
 
     def arrival_check(self):
@@ -264,10 +264,12 @@ class Hopping:
 
         # 남은 거리 계산 -> PID로
         self.calc_distance_to_goal()
-        self.u_thruster = self.distance_PID()
+        print(self.u_thruster)
 
+        self.u_thruster = self.distance_PID()
+        print(self.u_thruster)
         self.servo_pub.publish(int(self.u_servo))
-        self.thrusterL_pub.publish(int(self.u_thruster)+ 1500)
+        self.thrusterL_pub.publish(int(self.u_thruster))
         
         #self.thrusterR_pub.publish(int(self.u_thruster))
 

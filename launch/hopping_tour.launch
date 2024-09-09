@@ -4,7 +4,8 @@
 
 	<!--Velodyne LiDAR-->
 	<!-- load driver nodelet into it -->
-	<!-- <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch"></include> -->
+
+	<include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch"></include>
 
 	<!--GPS-->
 	<!-- <include file="$(find ntrip_ros)/launch/ntrip_ros.launch"></include> -->

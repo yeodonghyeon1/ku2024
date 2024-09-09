@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
-	<!--LiDAR-->
+	<!--LiDAR A3-->
 	<!-- <node name="rplidarNode"   pkg="rplidar_ros"  type="rplidarNode">
 		<param name="serial_port"         type="string" value="/dev/ttyRPLIDAR"/>  
 		<param name="serial_baudrate"     type="int"    value="256000"/>
@@ -10,32 +10,24 @@
 		<param name="angle_compensate"    type="bool"   value="true"/>
 		<param name="scan_mode"           type="string" value="Stability"/>
 	</node> -->
+
+	<!--LiDAR VLP-->
 	<include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch"></include>
+	<include file="$(find ku2023)/launch/p_to_laser.launch"></include>
 
 	<!--GPS-->
-	<!-- <include file="$(find ublox_gps)/launch/ublox_device.launch"></include> -->
-	
-	<include file="$(find ntrip_ros)/launch/ntrip_ros.launch"></include> 
-	<!-- <include file="$(find ntrip_ros)/launch/fake_gps.launch"></include> -->
-
-	<include file="$(find iahrs_driver)/launch/iahrs_driver.launch"></include>
-
-
-	<include file="$(find tractor_localization)/launch/localization.launch"></include>
-
+	<!-- <include file="$(find ku2023)/launch/ntrip_ros.launch"></include>  -->
+	<include file="$(find ku2023)/launch/fake_gps.launch"></include>
+	<include file="$(find ku2023)/launch/etk_localization.launch"></include>
 
 	<!--IMU-->
-	<!-- <node pkg="iahrs_driver" type="iahrs_driver" name="iahrs_driver">
-		<param name="port" value="/dev/ttyIMU" />
-		<param name="baud_rate" value="115200" />
-	</node> -->
+	<include file="$(find ku2023)/launch/iahrs_driver.launch"></include>
 
 	<!-- Nodes -->
 	<node pkg="ku2023"  type="heading_calculator_iahrs.py" name="headingCalculator" respawn="true" />
-	<!-- <node pkg="ku2023"  type="heading_calculator.py" name="headingCalculator" respawn="true" /> -->
-	<node pkg="ku2023"  type="gnss_converter.py" name="gnssConverter" respawn="true"/>
+	<node pkg="ku2023"  type="gnss_converter.py" name="gnssConverter" respawn="true"  />
 	<node pkg="ku2023" type="lidar_converter.py" name="lidarConverter" respawn="true"/>
-	<node pkg="ku2023" type="autonomous_backup.py" name="autonomous" output="screen"/>
+	<node pkg="ku2023" type="autonomous_pid.py" name="autonomous" output="screen"/>
 	<node pkg="ku2023" type="serial_node.py" name="ARDUINO" args="/dev/ttyARDUINO" respawn="true"/> 
 	<!-- ardurino -->
 
@@ -45,10 +37,7 @@
 	<!-- <node name="rqt" pkg="rqt_graph" type="rqt_graph"/> -->
 	
 	<!-- Record -->
-	<!-- <arg name="do_record" default="false" />
-	<arg name="filename" default="8_2_auto.bag" /> -->
-	<!-- <node pkg="rosbag" type="record" name="rosbag_record" required="true" if="$(arg do_record)" args=" -a $(find ku2023)/data/rosbag/$(arg filename)"  /> -->
-	<!-- <node pkg="rosbag" type="record" name="rosbag_record" required="true"  args=" -a -o $(find ku2023)/data/rosbag/"  /> -->
+	<!--<node pkg="rosbag" type="record" name="rosbag_record" required="true"  args="-a -o /media/jetson/data/rosbag/"  /> -->
 
 	<!-- Parameters -->
 	<rosparam command="load" file="$(find ku2023)/params/lidar_params.yaml"/>

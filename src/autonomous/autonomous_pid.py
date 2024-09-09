@@ -24,7 +24,7 @@ import os
 import sys
 import signal
 import rospy
-
+import numpy as np 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 import autonomous_visualize as av
@@ -40,8 +40,7 @@ import utils.obstacle_avoidance as oa
 from ku2023.msg import ObstacleList
 from utils.tools import *
 import copy
-
-
+from utils.PID import PID
 
 
 class Autonomous:
@@ -176,42 +175,16 @@ class Autonomous:
         self.obstacles = msg.obstacle
 
     def is_all_connected(self):
-        """make sure all subscribers(nodes) are connected to this node
 
-        Returns:
-            bool : True(if all connected) / False(not ALL connected yet)
-
-        Notes:
-            * 방법1: `if self.heading_sub.get_num_connections() == 0` - 노드 연결 여부만 체크
-            * 방법2: `rospy.wait_for_message("/heading", Float64)` - 값 들어올 때까지 무한정 대기
-        """
-        ## 방법1
-        # not_connected = ""  # 아직 연결되지 않은 센서 목록
-        # if self.heading_sub.get_num_connections() == 0:
-        #     not_connected += "headingCalculator\t"
-        # if self.enu_pos_sub.get_num_connections() == 0:
-        #     not_connected += "gnssConverter\t"
-        # if self.obstacle_sub.get_num_connections() == 0:
-        #     not_connected += "lidarConverter\t"
-
-        # if len(not_connected) == 0:
-        #     return True  # 전부 연결됨
-        # else:
-        #     print("\nWaiting >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        #     print(not_connected)
-        #     print("\n")
-        #     return False  # 아직 다 연결되지는 않음
-
-        ## 방법2
         rospy.wait_for_message("/heading", Float64)
         print("\n{:><70}".format("heading_calculator Connected "))
         rospy.wait_for_message("/enu_position", Point)
         print("\n{:><70}".format("gnss_converter Connected "))
-        rospy.wait_for_message("/obstacles", ObstacleList)
-        print("\n{:><70}".format("lidar_converter Connected "))
-        if self.show_raw_pcd:
-            rospy.wait_for_message("/scan", LaserScan)
-            print("\n{:><70}".format("LiDAR Connected "))
+        # rospy.wait_for_message("/obstacles", ObstacleList)
+        # print("\n{:><70}".format("lidar_converter Connected "))
+        # if self.show_raw_pcd:
+        #     rospy.wait_for_message("/scan", LaserScan)
+        #     print("\n{:><70}".format("LiDAR Connected "))
         return True
 
     def arrival_check(self):
@@ -276,7 +249,6 @@ def shutdown():
     auto.thrusterR_pub.publish(1500)
     print("press ctrl c ")
     sys.exit(0)
-    
 def main():
     global auto
     rospy.init_node("autonomous", anonymous=False)
@@ -347,73 +319,79 @@ def main():
                     servo_range=auto.servo_range,
                 )
                 # u_servo = moving_avg_filter(auto.filter_queue, auto.filter_queue_size, u_servo)
+                angle_PID = PID()
+                distance_PID = PID()
 
-                #-----------------edit----------------------------------------------------
+                PID_angle = angle_PID.update(error_angle)
+                PID_distance = distance_PID.update(auto.distance_to_goal)
+                #-----------------edit----------------------------------------------------#
+
                 thruster_speed_L=1560
                 thruster_speed_R=1560
+                limit_go_speed = 1750
+                limit_back_speed = 1350
+                PID_distance_value = 8
 
-                if error_angle > -1.0 and error_angle < 0.0: #go light 
-                    thruster_speed_L= 1560
-                    thruster_speed_R= 1440
-                elif error_angle<1.0 and error_angle>0.0: #go left
-                    thruster_speed_L= 1440
-                    thruster_speed_R= 1560
+                #-------------------------------------------------------------------------#
 
-                if error_angle > -1.0 and error_angle < -2: #go light 
-                    thruster_speed_L= 1580
-                    thruster_speed_R= 1420
-                elif error_angle<1.0 and error_angle>2: #go left
-                    thruster_speed_L= 1420
-                    thruster_speed_R= 1580
+                PID_distance = abs(math.log(pow(PID_distance, PID_distance_value), 2))
+                if error_angle < 0:
+                    thruster_speed_L = thruster_speed_L + abs(PID_angle)
+                    thruster_speed_R = thruster_speed_R - abs(PID_angle)
+                else:
+                    thruster_speed_L = thruster_speed_L - abs(PID_angle)
+                    thruster_speed_R = thruster_speed_R + abs(PID_angle)
 
-                elif error_angle > -2.0 and error_angle < -3.0: #go light 
-                    thruster_speed_L= 1600
-                    thruster_speed_R= 1410
-                elif error_angle<2.0 and error_angle>3.0: #go left
-                    thruster_speed_L= 1410
-                    thruster_speed_R= 1600
+                thruster_speed_L = thruster_speed_L + PID_distance
+                thruster_speed_R = thruster_speed_R + PID_distance
 
-                elif error_angle < -4.0: #go left 
-                    thruster_speed_L= 1650
-                    thruster_speed_R= 1400
-                elif error_angle>4.0: #go left
-                    thruster_speed_L= 1400
-                    thruster_speed_R= 1650
-                print("thruster_speed_L", thruster_speed_L)
-                print("thruster_speed_R", thruster_speed_R)
+
+                # if error_angle > -1.0 and error_angle < 0.0: #go light 
+                #     thruster_speed_L= 1560
+                #     thruster_speed_R= 1440
+                # elif error_angle<1.0 and error_angle>0.0: #go left
+                #     thruster_speed_L= 1440
+                #     thruster_speed_R= 1560
+
+                # if error_angle > -1.0 and error_angle < -2: #go light 
+                #     thruster_speed_L= 1580
+                #     thruster_speed_R= 1420
+                # elif error_angle<1.0 and error_angle>2: #go left
+                #     thruster_speed_L= 1420
+                #     thruster_speed_R= 1580
+
+                # elif error_angle > -2.0 and error_angle < -3.0: #go light 
+                #     thruster_speed_L= 1600
+                #     thruster_speed_R= 1410
+                # elif error_angle<2.0 and error_angle>3.0: #go left
+                #     thruster_speed_L= 1410
+                #     thruster_speed_R= 1600
+
+                # elif error_angle < -4.0: #go left 
+                #     thruster_speed_L= 1650
+                #     thruster_speed_R= 1400
+                # elif error_angle>4.0: #go left
+                #     thruster_speed_L= 1400
+                #     thruster_speed_R= 1650
+
             #----------------------------------------------------------------------------
-
-            #----------------------------------------------------------------------------
-            #error velue range: -90~90-> -400~400
-            # really ues error angle range: -10~10
-
-                # if error_angle > 0: 
-                #     util_L= util_n*-1.0
-                #     util_R= util_n
-                #     L_num = -40
-                #     R_num =  0
-
-                # elif error_angle <0:
-                #     util_L= util_n
-                #     util_R= util_n*-1.0
-                #     L_num = 0
-                #     R_num = -40
-
-                # thruster_speed_L = int(error_angle * util_L) + 1540 + L_num
-                # thruster_speed_R = int(error_angle * util_R) + 1540 + R_num
-
-                # if thruster_speed_L >1880:
-                #     thruster_speed_L= 1880
-                
-                # if thruster_speed_R >1880:
-
-
-                # thruster_speed_L=int(thruster_speed_L)
-                # thruster_speed_R=int(thruster_speed_R)
-
-            #--------------------------------------------------------------------------
 
                 # 제어명령
+                if thruster_speed_L > limit_go_speed:
+                    thruster_speed_L = limit_go_speed
+                if thruster_speed_R > limit_go_speed:
+                    thruster_speed_R = limit_go_speed
+                if thruster_speed_L < limit_back_speed:
+                    thruster_speed_L = limit_back_speed
+                if thruster_speed_R < limit_back_speed:
+                    thruster_speed_R = limit_back_speed
+
+                print("PID_angle", PID_angle)
+                print("PID_distance", PID_distance)
+
+                print("thruster_speed_L", thruster_speed_L)
+                print("thruster_speed_R", thruster_speed_R)
+
                 auto.thrusterL_pub.publish(thruster_speed_L)
                 auto.thrusterR_pub.publish(thruster_speed_R)
 

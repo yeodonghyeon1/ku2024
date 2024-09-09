@@ -14,7 +14,7 @@ point_set_size: 3
 max_dist_to_ps_line: 1
 
 # 벽이라고 인정할 최소 길이 ( x 0.1 meters )
-min_wall_length: 0
+min_wall_length: 0.1
 
 # 벽 분할할 길이 ( x 0.1 meters )
 wall_particle_length: 0.5

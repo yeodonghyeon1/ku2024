@@ -16,7 +16,7 @@ span_angle : 12 # 12
 # 선수각 및 서보모터 이동평균필터 큐 사이즈
 filter_queue_size : 3
 
-
+etk_use : False # extended kalman filiter; if you have True then you can't use fake_gps.launch
 #-------------------------------------
 
 

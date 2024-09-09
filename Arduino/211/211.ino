@@ -4,6 +4,9 @@
 //#define ip4 9 // 4->9pin
 #define ip5 10 // 5->10pin
 #define ip6 11 // 6->10pin
+#define led1 22// siganl_light_r
+#define led2 24// signal_light_g
+#define led3 26// signal_light_b
 
 //4,6-> 10pin
 
@@ -51,6 +54,9 @@ void setup()
   pinMode (ip5, INPUT);
   pinMode (9, INPUT);
   pinMode (8, INPUT);
+  pinMode (led1, INPUT);
+  pinMode (led2, INPUT);
+  pinMode (led3, INPUT);
 
   thruster1.attach(13); // 13pin //left L
   thruster2.attach(12);// 12pin //right R
@@ -84,13 +90,18 @@ void loop()
       digitalWrite(8,HIGH);
       digitalWrite(9,LOW);
       autonomous();
+      digitalWrite(led1,LOW);
+      digitalWrite(led2,HIGH);
+      digitalWrite(led3,LOW);
     }
     else if (ch5 > 1450)
     {
       digitalWrite(8,LOW);
       digitalWrite(9,HIGH);
       rc();
-      
+      digitalWrite(led1,LOW);
+      digitalWrite(led2,LOW);
+      digitalWrite(led3,HIGH);
     }
   }
 

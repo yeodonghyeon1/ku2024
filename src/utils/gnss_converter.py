@@ -120,15 +120,18 @@ def enu_convert(gnss):
 
 
 def main():
+    
+    etk = rospy.get_param("etk_use")
+    etk_use = ""
+    if etk == True:
+        etk_use = "/gps/filtered"
+    else:
+        etk_use = "/ublox_gps/fix"
+    print(etk_use)
     rospy.init_node("gnss_converter", anonymous=True)
-    # rospy.Subscriber("/imu/data", Imu, imu_ang_vel_callback, queue_size=1)
-    # rospy.Subscriber("/ublox_gps/fix", NavSatFix, gps_fix_callback, queue_size=1)
-    rospy.Subscriber("/gps/filtered", NavSatFix, gps_fix_callback, queue_size=1)
-
-    # rospy.Subscriber("/ublox_gps/rtcm", Message, gps_fix_callback, queue_size=1)
-
+    rospy.Subscriber("{}".format(etk_use), NavSatFix, gps_fix_callback, queue_size=1)
+    # rospy.Subscriber("/gps/filtered", NavSatFix, gps_fix_callback, queue_size=1)
     pub = rospy.Publisher("enu_position", Point, queue_size=10)
-    # pub1 = rospy.Publisher("new_fake_gps", NavSatFix, queue_size=1)
     rate = rospy.Rate(10)  # 10Hz
     enu_position = Point()
     # new_fake_gps=NavSatFix()

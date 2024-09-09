@@ -7,6 +7,8 @@ ob_dist_range : 4
 # 장애물 탐지 (각도) 범위 (deg)
 ob_angle_range : [-100, 100]
 
+etk_use : True  # extended kalman filiter; if you have True then you can't use fake_gps.launch
+
 # 장애물 좌우에 추가할 안전 각도 (deg)
 span_angle : 15
 
@@ -21,6 +23,7 @@ servo_range: [70, 120]
 
 # 서보모터 제어값 결정 상수
 angle_alpha: 1.5
+
 
 # 쓰러스터 PWM 신호 (선속)
 thruster_auto: 1800 # 자율운항 모드 ~ 도킹 시작 지점
