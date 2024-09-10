@@ -59,14 +59,13 @@ def preprocess_image(raw_img, hsv=True, blur=False, brightness=False):
         np.ndarray: preprocessed image
     """
     img = raw_img
-    brightness=True
     if brightness == True:
         img = mean_brightness(img)
     if blur == True:
         img = cv2.GaussianBlur(img, (5, 5), 0)
     if hsv == True:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
+    cv2.imshow("img", img)
     return img
 
 

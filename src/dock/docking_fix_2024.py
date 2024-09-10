@@ -234,11 +234,15 @@ class Docking:
         img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         if img.size == (640 * 480 * 3):
             self.raw_img = img
+            color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
+            print(cv2.cvtColor(color_check, cv2.COLOR_BGR2HSV))
+            # print(color_check)
+
             # check_img = img
-            # check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
-            # print(self.raw_img[320, 240])
+            # check_img = cv2.circle(check_img, (240, 320), 3, (255,0,0), 2)
             # cv2.imshow("img", check_img)
-          
+            # [120  98 189]
+            #191, 115, 116
             pass
 
     def get_trackbar_pos(self):
@@ -354,8 +358,8 @@ class Docking:
             True/False (bool): 타겟을 찾음(True), 찾지 못함(False)
             target (list): 타겟을 찾았고, [넓이, 중앙지점] 정보를 담고 있음
         """
-        self.show_window()
-        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True)
+        # self.show_window()
+        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=False)
 
         
         if self.target_color == 'black2':
