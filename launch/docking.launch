@@ -10,9 +10,9 @@
         <param name="io_method" value="mmap" />
         <param name="image_width" value="640" />
         <param name="image_height" value="480" />
-        <param name="exposure" value="0" />
-        <param name="contrast" value="13" /> 	 		
-        <param name="saturation" value="38" />
+        <param name="exposure" value="128" />
+        <param name="contrast" value="128" /> 	 		
+        <param name="saturation" value="128" />
     </node>
 
 	<!-- <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
@@ -41,8 +41,8 @@
 	<include file="$(find ku2023)/launch/p_to_laser.launch"></include>
 
 	<!--GPS-->
-	<include file="$(find ku2023)/launch/ntrip_ros.launch"></include>
-	<!-- <include file="$(find ku2023)/launch/fake_gps.launch"></include> -->
+	<!-- <include file="$(find ku2023)/launch/ntrip_ros.launch"></include> -->
+	<include file="$(find ku2023)/launch/fake_gps.launch"></include>
 	<include file="$(find ku2023)/launch/etk_localization.launch"></include>
 
 	

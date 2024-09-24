@@ -209,7 +209,7 @@ class Docking:
         self.thruster_speed_L= 1500
         self.thruster_speed_R= 1500
         # current status
-        self.state = 0
+        self.state = rospy.get_param("start_docking_state")
         # 0: 장애물 회피
         # 1: 스테이션1로 이동 중
         # 2: 스테이션2로 이동 중
@@ -230,7 +230,7 @@ class Docking:
         self.cross = 0
         self.max_board_count = 0
         self.use_the_board = False
-
+        self.check_head = False
         # controller
         cv2.namedWindow("controller")
         # cv2.createTrackbar("color1 min", "controller", self.color_range[0][0], 180, lambda x: x)
@@ -336,7 +336,9 @@ class Docking:
             if result >= 5000:
                 change_state = True
         elif self.state == 4: # 도형 쪽으로 헤딩값 수정
-            change_state = self.check_heading()
+            # change_state = self.check_heading()
+            if self.check_head == True:
+                change_state = True
         elif self.state == 5:
             if self.mark_check_cnt >= self.target_detect_time:
                 change_state = True
@@ -512,13 +514,26 @@ class Docking:
         else:
             return False
 
-    def calc_psi_goal(self):
+    def calc_psi_goal_one(self):
         """다음 목표지점으로 가기 위한 선수 회전 각도를 계산"""
         psi_goal = (
             math.degrees(
                 math.atan2(
-                    self.waypoints[self.state][1] - self.boat_y,
-                    self.waypoints[self.state][0] - self.boat_x,
+                    self.waypoints[0][1] - self.boat_y,
+                    self.waypoints[0][0] - self.boat_x,
+                )
+            )
+            - self.psi
+        )
+        self.psi_goal = rearrange_angle(psi_goal)
+
+    def calc_psi_goal_four(self):
+        """다음 목표지점으로 가기 위한 선수 회전 각도를 계산"""
+        psi_goal = (
+            math.degrees(
+                math.atan2(
+                    self.waypoints[4][1] - self.boat_y,
+                    self.waypoints[4][0] - self.boat_x,
                 )
             )
             - self.psi
@@ -686,7 +701,9 @@ def main():
             imu_fix= False
         # 특정 지점으로 이동해야 하는 경우, psi_goal 계산
         if docking.state in [0]:
-            docking.calc_psi_goal()
+            docking.calc_psi_goal_one()
+        if docking.state in [4]:
+            docking.calc_psi_goal_four()
 
         # 도킹 완료됨. 정지 및 끝내기
         if docking.state == 7:
@@ -721,24 +738,40 @@ def main():
             u_thruster = True
 
         elif docking.state == 3:
+            error_angle = oa.calc_desire_angle(
+                danger_angles=danger_angles,
+                angle_to_goal=docking.psi_goal,
+                angle_range=docking.ob_angle_range,
+            )
             detected = docking.check_board()  # 타겟이 탐지 되었는가?
             docking.use_the_board = True
-
             # # 지정된 횟수만큼 탐색 실시해봄
 
 
         # 헤딩 돌리기: 우선 일정 시간동안 정지한 후 헤딩 회전
+        # elif docking.state == 4:
+        #     # 정지 종료, 헤딩 돌리기
+        #     if docking.stop_cnt >= docking.stop_time:
+        #         u_thruster = True
+        #         error_angle = docking.station_dir - docking.psi
+        #         #u_thruster = docking.thruster_rotate
+        #     # 정지 중
+        #     else:
+        #         docking.stop_cnt += 1  # 몇 번 루프를 돌 동안 정지
+        #         rospy.sleep(1)
+        #         u_thruster = False
+            
         elif docking.state == 4:
-            # 정지 종료, 헤딩 돌리기
-            if docking.stop_cnt >= docking.stop_time:
+            error_angle = oa.calc_desire_angle(
+                    danger_angles=danger_angles,
+                    angle_to_goal=docking.psi_goal,
+                    angle_range=docking.ob_angle_range,
+                )
+            if abs(error_angle) > 5:
                 u_thruster = True
-                error_angle = docking.station_dir - docking.psi
-                #u_thruster = docking.thruster_rotate
-            # 정지 중
             else:
-                docking.stop_cnt += 1  # 몇 번 루프를 돌 동안 정지
-                rospy.sleep(1)
                 u_thruster = False
+                docking.check_head = True
 
         # 표지 판단
         elif docking.state == 5:
@@ -905,6 +938,8 @@ def docking_part():
         # 특정 지점으로 이동해야 하는 경우, psi_goal 계산
         if docking.state in [0]:
             docking.calc_psi_goal()
+        elif docking.state in [4]:
+            docking.calc_psi_goal()
 
         # 도킹 완료됨. 정지 및 끝내기
         if docking.state == 7:
@@ -947,6 +982,7 @@ def docking_part():
                 docking.stop_cnt += 1  # 몇 번 루프를 돌 동안 정지
                 rospy.sleep(1)
                 u_thruster = False
+
 
         # 표지 판단
         elif docking.state == 5:

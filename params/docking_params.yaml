@@ -7,7 +7,11 @@ ob_dist_range : 4
 # 장애물 탐지 (각도) 범위 (deg)
 ob_angle_range : [-100, 100]
 
-etk_use : True  # extended kalman filiter; if you have True then you can't use fake_gps.launch
+# extended kalman filiter; if you have True then you can't use fake_gps.launch
+etk_use : False 
+
+# want start docking state
+start_docking_state : 0
 
 # 장애물 좌우에 추가할 안전 각도 (deg)
 span_angle : 15

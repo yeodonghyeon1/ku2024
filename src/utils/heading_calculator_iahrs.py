@@ -17,13 +17,13 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 class HeadingAngle:
     def __init__(self):
-        rospy.Subscriber("/imu/data", Imu, self.IMU_callback, queue_size=1) #edit
-        # rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit
-        
-        # rospy.Subscriber("/imu_fix",Float64,self.IMU_Fix_callback,queue_size=1 )
         self.pub = rospy.Publisher("/heading", Float64, queue_size=0)
         self.pub2 = rospy.Publisher("/one", TFMessage, queue_size=1)
         self.pub_imu = rospy.Publisher("/imu/frame_trans", Imu, queue_size=1)
+        
+        rospy.Subscriber("/imu/data", Imu, self.IMU_callback, queue_size=1) #edit
+        # rospy.Subscriber("/tf", TFMessage, self.tf_callback, queue_size=1) #edit        
+        # rospy.Subscriber("/imu_fix",Float64,self.IMU_Fix_callback,queue_size=1 )
 
 
         self.imu = Imu()

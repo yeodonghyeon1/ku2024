@@ -16,8 +16,8 @@
 	<include file="$(find ku2023)/launch/p_to_laser.launch"></include>
 
 	<!--GPS-->
-	<include file="$(find ku2023)/launch/ntrip_ros.launch"></include> 
-	<!-- <include file="$(find ku2023)/launch/fake_gps.launch"></include> -->
+	<!-- <include file="$(find ku2023)/launch/ntrip_ros.launch"></include>  -->
+	<include file="$(find ku2023)/launch/fake_gps.launch"></include>
 	<include file="$(find ku2023)/launch/etk_localization.launch"></include>
 
 	<!--IMU-->

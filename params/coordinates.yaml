@@ -37,7 +37,7 @@ boundary1: [
 
 
 # 도킹 시작 지점
-docking_enterence: [35.179424, 128.554234, 100.0] 
+docking_enterence: [35.1793552, 128.5542073,  82.401] 
 
 # 도킹 스테이션 s,,,L,,M,M,M,M ,M ,KM,KM,,MMM,, MMMMMMMMM MMM,KM,L,K,M,,M,M, M, KM,MM,M, KL M,ML, , MK,,,,,,,MMMMM,M,,,       전방
 station3: [35.1794562, 128.5544744, 32.041]

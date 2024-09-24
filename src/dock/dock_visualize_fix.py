@@ -129,7 +129,7 @@ def visualize(dc, inrange_obstacles, danger_angels):
     )
 
     # station과 그 방향
-    for i in range(1, 5):
+    for i in range(0, 5):
         x_pos = dc.waypoints[i][0]
         y_pos = dc.waypoints[i][1]
 
