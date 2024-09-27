@@ -44,7 +44,6 @@ ref_dir_range: 10
 
 # 스테이션 방향 선수각
 station_dir: -10
-
 # 표지 색 범위
 color_range : {
   red: {
@@ -56,12 +55,12 @@ color_range : {
     color3_upper: 199
   },
   red_2: {
-    color1_lower: 134,
-    color1_upper: 232,
-    color2_lower: 135,
-    color2_upper: 255,
-    color3_lower: 132,
-    color3_upper: 255
+    color1_lower: 66,
+    color1_upper: 106,
+    color2_lower: 73,
+    color2_upper: 113,
+    color3_lower: 149,
+    color3_upper: 189
   },
   green: {
     color1_lower: 40, 
@@ -139,7 +138,7 @@ board_color_range : {
 target_shape: 4
 
 # 목표 색깔 (red, green, blue, black, black2, orange)
-target_color: red
+target_color: red_2
 
 # 인식 최소 크기 (최소 이만큼은 되어야 인지 시작, 이보다 작으면 무시)
 mark_detect_area: 200

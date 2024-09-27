@@ -134,7 +134,7 @@ def is_target_fix(target_shape, target_detect):
 
     return True
 
-def detect_target_state_zero_version2(search_all_maybe_image_board, img, mark_detect_area):
+def detect_target_state_zero_version2(search_all_maybe_image_board, img, preprocessed, mark_detect_area):
     """detect all marks and get target information if target mark is there
 
     1. 모폴로지 연산으로 빈 공간 완화 & 노이즈 제거
@@ -172,7 +172,11 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, img, mark_de
     #print(img)
     # 시각화 결과 영상 생성
     shapes = cv2.cvtColor(morph, cv2.COLOR_GRAY2BGR)  # 시각화할 image
-  
+    
+    # (x, y ) , (w,h) =  (100, 100) ,(400, 250)
+    # roi = morph[y : y+h, x: x+w]
+    # morph = roi
+    # cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
     # 화면 내 모든 도형 검출
     contours, _ = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     #contours,_ = cv2.findContours(morph, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
@@ -217,7 +221,7 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, img, mark_de
         # 타겟 정보 저장 (해당 화면에서 타겟이 검출되었다면)
         if detected:
             if area > max_area:  # 최대 크기라면 정보 갱신
-                search_all_maybe_image_board.append([vertex_num, img[center_point[0], center_point[1]]])
+                search_all_maybe_image_board.append([vertex_num, preprocessed[center_point[0], center_point[1]]])
                 target = [area, center_point[0], center_point[1]] #(edit) center_point[1] 추가
                 max_area = area
             else:
@@ -279,7 +283,9 @@ def detect_target_state_zero_version1(img_trajectory, search_all_maybe_image_boa
     thresh = cv2.threshold(blurred, 120, 255, cv2.THRESH_BINARY)[1]
     # thresh = cv2.threshold(blurred, -1, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
-
+    (x, y ) , (w,h) =  (100, 100) ,(400, 250)
+    roi = thresh[y : y+h, x: x+w]
+    thresh = roi
     # 화면 내 모든 도형 검출
     # contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours,_ = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
@@ -402,6 +408,9 @@ def detect_target(img, target_shape, mark_detect_area, target_detect_area, draw_
     max_area = 0  # 가장 넓은 넓이의 도형
     target = []  # 타겟 정보 [area, center_col, approx]
 
+
+
+
     # 모폴로지 연산
     morph_kernel = np.ones((9, 9), np.uint8)
     morph = cv2.morphologyEx(img, cv2.MORPH_CLOSE, morph_kernel)
@@ -411,6 +420,11 @@ def detect_target(img, target_shape, mark_detect_area, target_detect_area, draw_
     shape = cv2.line(shapes, (320, 0), (320, 480), (255, 0, 0), 2)  # 중앙 세로선
 
   
+    (x, y ) , (w,h) =  (100, 100) ,(400, 250)
+    roi = morph[y : y+h, x: x+w]
+    morph = roi
+    cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
+
     # 화면 내 모든 도형 검출
     contours, _ = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     #contours,_ = cv2.findContours(morph, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)

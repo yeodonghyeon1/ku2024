@@ -42,6 +42,7 @@ from utils.tools import *
 import copy
 from utils.PID import PID
 from dock.docking_fix_2024 import *
+from dock.color import ShapeColorAnalyzer
 
 class Autonomous:
     def __init__(self):
@@ -266,7 +267,8 @@ class Autonomous:
         self.use_the_board = False
         self.check_head = False
         self.check_the_three_state = False
-
+        self.print_target_color = 0
+        self.print_target_std = 0
         # pre-setting
         self.arrival_check()  # 다음 목표까지 남은 거리
 
@@ -428,6 +430,7 @@ class Autonomous:
         #     target, self.shape_img, self.mark_area, search_all = mark_detect.detect_target_state_zero_version2(
         #         self.search_all_maybe_image_board,
         #         j,
+        #         preprocessed,
         #         self.mark_detect_area,
         #     )  # target = [area, center_col] 형태로 타겟의 정보를 받음
         #     self.search_all_maybe_image_board = search_all
@@ -469,20 +472,18 @@ class Autonomous:
         if target_list[0] == self.cross:
             self.target_shape = 12
 
+        result = self.circle + self.triangle + self.cross + self.square
+        if result >= 5000:
+            sh = ShapeColorAnalyzer()
+            sh.search_all_maybe_image_board = self.search_all_maybe_image_board
+            sh.insert_the_borad_target(self.target_shape)
+            self.print_target_color = sh.mean_color
+            self.print_target_std = sh.std_color
+            self.color_range[0] = np.subtract(np.array(sh.mean_color).astype(int), 20)
+            self.color_range[1] = np.add(np.array(sh.mean_color).astype(int), 20)
+            self.check_the_three_state = sh.check_the_three_state 
 
-        if len(self.search_all_maybe_image_board) >= 5000:
-            for i in self.search_all_maybe_image_board:
-                if i[0] == 4:
-                    pass
-                elif i[0] == 3:
-                    pass
-                elif i[0] == 8:
-                    pass
-                elif i[0] == 12:
-                    pass
-            self.check_the_three_state = True
 
-            
     def check_docked(self):
         """스테이션에 도크되었는지 확인
 
@@ -637,7 +638,9 @@ class Autonomous:
         try:
             print("color : {}".format(self.color_check))
             print("square: {}, triangle: {}, circle {},  cross {}".format(self.square, self.triangle, self.circle,  self.cross))
-
+            print("target: {}".format(self.target_shape))
+            print("target_color: {}, std_color {}".format(self.print_target_color , self.print_target_std))
+            print("color range {} , {}".format(self.color_range[0], self.color_range[1]))
         except:
             pass
         print("\n\n\n\n")

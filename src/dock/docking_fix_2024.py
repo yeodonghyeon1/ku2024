@@ -73,8 +73,7 @@ import utils.gnss_converter as gc
 import utils.obstacle_avoidance as oa
 from ku2023.msg import ObstacleList
 from utils.tools import *
-
-
+from dock.color import ShapeColorAnalyzer
 class Docking:
 
     def __init__(self):
@@ -235,6 +234,8 @@ class Docking:
         self.use_the_board = False
         self.check_head = False
         self.check_the_three_state = False
+        self.print_target_color = 0
+        self.print_target_std = 0
         # controller
         cv2.namedWindow("controller")
         # cv2.createTrackbar("color1 min", "controller", self.color_range[0][0], 180, lambda x: x)
@@ -428,74 +429,74 @@ class Docking:
         preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=False)
 
         self.hsv_img = preprocessed
-        try:
-            # version1 we use to gray scale and then contour image what is shape and color
-            target, self.shape_img, self.mark_area, img_tj, search_all= mark_detect.detect_target_state_zero_version1(
-                self.image_trajectory,
-                self.search_all_maybe_image_board,
-                self.hsv_img,
-                self.target_shape,
-                self.mark_detect_area,
-                self.target_detect_area,
-                self.draw_contour,
-            )  # target = [area, center_col] 형태로 타겟의 정보를 받음
+        # # version1 we use to gray scale and then contour image what is shape and color
+        # try:
+        #     target, self.shape_img, self.mark_area, img_tj, search_all= mark_detect.detect_target_state_zero_version1(
+        #         self.image_trajectory,
+        #         self.search_all_maybe_image_board,
+        #         self.hsv_img,
+        #         self.target_shape,
+        #         self.mark_detect_area,
+        #         self.target_detect_area,
+        #         self.draw_contour,
+        #     )  # target = [area, center_col] 형태로 타겟의 정보를 받음
 
-            # cv2.imshow("shape_img", self.shape_img)
-            self.image_trajectory = img_tj
-            self.search_all_maybe_image_board = search_all
-            temp_board_count = 0
-            for i in range(self.max_board_count+1, len(self.image_trajectory)):
-                temp_board_count = i
-                if self.image_trajectory[i][1] == 4:
-                    self.square += 1
-                elif self.image_trajectory[i][1] == 3:
-                    self.triangle += 1
-                elif self.image_trajectory[i][1] == 8:
-                    self.circle += 1
-                elif self.image_trajectory[i][1] == 12:
-                    self.cross += 1
+        #     # cv2.imshow("shape_img", self.shape_img)
+        #     self.image_trajectory = img_tj
+        #     self.search_all_maybe_image_board = search_all
+        #     temp_board_count = 0
+        #     for i in range(self.max_board_count+1, len(self.image_trajectory)):
+        #         temp_board_count = i
+        #         if self.image_trajectory[i][1] == 4:
+        #             self.square += 1
+        #         elif self.image_trajectory[i][1] == 3:
+        #             self.triangle += 1
+        #         elif self.image_trajectory[i][1] == 8:
+        #             self.circle += 1
+        #         elif self.image_trajectory[i][1] == 12:
+        #             self.cross += 1
 
-            print(self.max_board_count)
-            self.hsv_img_list = []
-            if len(self.image_trajectory) >= 100:
-                self.image_trajectory = []
-                self.max_board_count = 0
-        except:
-            target = []
-            pass
+        #     print(self.max_board_count)
+        #     self.hsv_img_list = []
+        #     if len(self.image_trajectory) >= 100:
+        #         self.image_trajectory = []
+        #         self.max_board_count = 0
+        # except:
+        #     target = []
+        #     pass
 
 
 
         #version2 we use to color_range so wo know that shape color before started autonomous
-        # for i in self.board_color_array:
-        #     self.hsv_img_list.append(mark_detect.select_color(preprocessed, i))  # 원하는 색만 필터링
-        # for j in self.hsv_img_list:
-        #     target, self.shape_img, self.mark_area, search_all = mark_detect.detect_target_state_zero_version2(
-        #         self.search_all_maybe_image_board,
-        #         j,
-        #         self.mark_detect_area,
-        #     )  # target = [area, center_col] 형태로 타겟의 정보를 받음
-        #     self.search_all_maybe_image_board = search_all
+        for i in self.board_color_array:
+            self.hsv_img_list.append(mark_detect.select_color(preprocessed, i))  # 원하는 색만 필터링
+        for j in self.hsv_img_list:
+            target, self.shape_img, self.mark_area, search_all = mark_detect.detect_target_state_zero_version2(
+                self.search_all_maybe_image_board,
+                j,
+                preprocessed,
+                self.mark_detect_area,
+            )  # target = [area, center_col] 형태로 타겟의 정보를 받음
+            self.search_all_maybe_image_board = search_all
+
+        temp_board_count = 0
+        for i in range(self.max_board_count+1, len(self.search_all_maybe_image_board)):
+            temp_board_count = i
+            if self.search_all_maybe_image_board[i][0] == 4:
+                self.square += 1
+            elif self.search_all_maybe_image_board[i][0] == 3:
+                self.triangle += 1
+            elif self.search_all_maybe_image_board[i][0] == 8:
+                self.circle += 1
+            elif self.search_all_maybe_image_board[i][0] == 12:
+                self.cross += 1
 
 
-        # temp_board_count = 0
-        # for i in range(self.max_board_count+1, len(self.search_all_maybe_image_board)):
-        #     temp_board_count = i
-        #     if self.search_all_maybe_image_board[i][0] == 4:
-        #         self.square += 1
-        #     elif self.search_all_maybe_image_board[i][0] == 3:
-        #         self.triangle += 1
-        #     elif self.search_all_maybe_image_board[i][0] == 8:
-        #         self.circle += 1
-        #     elif self.search_all_maybe_image_board[i][0] == 12:
-        #         self.cross += 1
-
-
-        # self.max_board_count = temp_board_count
-        # self.hsv_img_list = []
-        # if len(self.search_all_maybe_image_board) >= 100:
-        #     self.search_all_maybe_image_board = []
-        #     self.max_board_count = 0
+        self.max_board_count = temp_board_count
+        self.hsv_img_list = []
+        if len(self.search_all_maybe_image_board) >= 100:
+            self.search_all_maybe_image_board = []
+            self.max_board_count = 0
 
         if return_target == True:
             return target
@@ -514,19 +515,16 @@ class Docking:
             self.target_shape = 8
         if target_list[0] == self.cross:
             self.target_shape = 12
-
-        if len(self.search_all_maybe_image_board) >= 5000:
-            color = [] 
-            for i in self.search_all_maybe_image_board:
-                if i[0] == 4:
-                    i[1]
-                elif i[0] == 3:
-                    pass
-                elif i[0] == 8:
-                    pass
-                elif i[0] == 12:
-                    pass
-            self.check_the_three_state = True
+        result = self.circle + self.triangle + self.cross + self.square
+        if result >= 5000:
+            sh = ShapeColorAnalyzer()
+            sh.search_all_maybe_image_board = self.search_all_maybe_image_board
+            sh.insert_the_borad_target(self.target_shape)
+            self.print_target_color = sh.mean_color
+            self.print_target_std = sh.std_color
+            self.color_range[0] = np.subtract(np.array(sh.mean_color).astype(int), 30)
+            self.color_range[1] = np.add(np.array(sh.mean_color).astype(int), 30)
+            self.check_the_three_state = sh.check_the_three_state 
     def check_docked(self):
         """스테이션에 도크되었는지 확인
 
@@ -680,6 +678,8 @@ class Docking:
             print("color : {}".format(self.color_check))
             print("square: {}, triangle: {}, circle {},  cross {}".format(self.square, self.triangle, self.circle,  self.cross))
             print("target: {}".format(self.target_shape))
+            print("target_color: {}, std_color {}".format(self.print_target_color , self.print_target_std))
+            print("color range {} , {}".format(self.color_range[0], self.color_range[1]))
         except:
             pass
         print("\n\n\n\n")
@@ -703,6 +703,10 @@ class Docking:
             # cv2.imshow("test", cv2.hconcat([raw_img, col2]))
             cv2.imshow("shape", self.shape_img)
             cv2.imshow("controller", raw_img)
+
+def shutdown():
+    cv2.destroyAllWindows()
+    sys.exit(0)
 
 
 def main():
@@ -789,7 +793,7 @@ def main():
                     angle_to_goal=docking.psi_goal,
                     angle_range=docking.ob_angle_range,
                 )
-            if abs(error_angle) > 5:
+            if abs(error_angle) > 100:
                 u_thruster = True
             else:
                 u_thruster = False
@@ -940,6 +944,7 @@ def main():
         if cv2.waitKey(1) == 27:
             cv2.destroyAllWindows()
             break
+    rospy.on_shutdown(shutdown)
 
 
 def docking_part(auto):
