@@ -18,3 +18,5 @@ min_wall_length: 0.1
 
 # 벽 분할할 길이 ( x 0.1 meters )
 wall_particle_length: 0.5
+
+ob_scale: 10

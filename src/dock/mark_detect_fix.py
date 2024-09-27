@@ -69,7 +69,7 @@ def preprocess_image(raw_img, hsv=True, blur=False, brightness=False ): #, lapla
     # if laplacian:
     #     img = cv2.Laplacian(img , cv2.CV_64F)
     #     img = cv2.convertScaleAbs(img)
-    cv2.imshow("img", img)
+    # cv2.imshow("img", img)
     return img
 
 
@@ -276,8 +276,9 @@ def detect_target_state_zero_version1(img_trajectory, search_all_maybe_image_boa
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     noise = random.randint(-20, 20)
-    thresh = cv2.threshold(blurred, -1, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    cv2.imshow("gray", thresh)
+    thresh = cv2.threshold(blurred, 120, 255, cv2.THRESH_BINARY)[1]
+    # thresh = cv2.threshold(blurred, -1, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
 
     # 화면 내 모든 도형 검출
     # contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -337,13 +338,14 @@ def detect_target_state_zero_version1(img_trajectory, search_all_maybe_image_boa
                 if i[0][0] > min_x and i[0][0] < max_x:
                     if i[0][1] > min_y and i[0][1] < max_y:
                         if i[1] != vertex_num:
+                            count += 1
+                        if count >= 3:
                             not_we_want_shape = True
                             break
             if not_we_want_shape == True:
                 continue
             else:
                 search_all_maybe_image_board.append([vertex_num, img[center_point[0], center_point[1]]])
-                print(vertex_num, center_point)
                 if area > max_area:  # 최대 크기라면 정보 갱신
                     target = [area, center_point[0], center_point[1]] #(edit) center_point[1] 추가
                     max_area = area
@@ -508,9 +510,9 @@ def draw_mark(window, contour, vertices, area, box_points, center_point, is_targ
     # 도형
     if is_target:
         color = (0, 255, 0)  # target은 초록색으로 표시
-        window = cv2.line(window, (center_point[1], 0), (center_point[1], 480), (0, 0, 255), 2)
+        # window = cv2.line(window, (center_point[1], 0), (center_point[1], 480), (0, 0, 255), 2)
     else:
-        color = (135, 219, 250)  # 그 외는 노란색
+        color = (200, 219, 250)  # 그 외는 노란색
 
     # 도형 정보 라벨
     if vertices == 3:
@@ -523,12 +525,15 @@ def draw_mark(window, contour, vertices, area, box_points, center_point, is_targ
         shape = "Circle"
     else:
         shape = "not"
-    caption = "{} ( {:,d} )".format(shape, int(area))  # 도형에 보일 텍스트(도형 종류, 넓이)
+    caption = "{}".format(shape)  # 도형에 보일 텍스트(도형 종류, 넓이)
 
     window = cv2.drawContours(window, [contour], -1, color, -1)  # 도형 그리기
     window = cv2.rectangle(window, box_points[0], box_points[1], color, 1)  # 박스 그리기
-    window = cv2.circle(window, (center_point[1], center_point[0]), 2, (0, 0, 255), 2)  # 중심점 그리기
-    window = cv2.putText(window, caption, box_points[0], cv2.FONT_HERSHEY_PLAIN, 1, color, 1, cv2.LINE_AA)  # 글씨 쓰기
+    window = cv2.circle(window, (center_point[1], center_point[0]), 2, (255, 255, 255), 2)  # 중심점 그리기
+    window = cv2.putText(window, caption, box_points[0], cv2.FONT_HERSHEY_SIMPLEX, 1, color, 1, cv2.LINE_AA)  # 글씨 쓰기
+    window = cv2.putText(window, "Offset -53", (10,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1, cv2.LINE_AA)  # 글씨 쓰기
+    # print(box_points)[(175, 399), (245, 442)]
+
 
     return window
 

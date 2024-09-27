@@ -118,6 +118,8 @@ class Autonomous:
         self.visual_rviz_pub = rospy.Publisher("/visual_rviz", MarkerArray, queue_size=0)
         self.imu_fix_pub = rospy.Publisher("/imu_fix", Float64, queue_size=1)
         self.imu_fix = 0
+
+        self.scale = rospy.get_param("ob_scale")
         # pre-setting
         self.arrival_check()  # 다음 목표까지 남은 거리
 
@@ -311,8 +313,8 @@ def main():
                     span_angle=auto.span_angle,
                     angle_range=auto.ob_angle_range,
                     distance_range=auto.ob_dist_range,
+                    scale=auto.scale,
                 )
-
                 # 목표각과 현 헤딩 사이 상대적 각도 계산. 선박고정좌표계로 '가야 할 각도'에 해당
                 error_angle = oa.calc_desire_angle(
                     danger_angles=auto.danger_angles,

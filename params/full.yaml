@@ -17,6 +17,12 @@ span_angle : 12 # 12
 filter_queue_size : 3
 
 etk_use : False # extended kalman filiter; if you have True then you can't use fake_gps.launch
+
+
+# want start docking state
+start_docking_state : 3
+
+
 #-------------------------------------
 
 
@@ -58,14 +64,13 @@ station_dir: -10
 # 표지 색 범위
 color_range : {
   red: {
-    color1_lower: 153,
-    color1_upper: 232,
-    color2_lower: 0,
-    color2_upper: 255,
-    color3_lower: 0,
-    color3_upper: 255
+    color1_lower: 39,
+    color1_upper: 99,
+    color2_lower: 45,
+    color2_upper: 105,
+    color3_lower: 129,
+    color3_upper: 199
   },
-
   red_2: {
     color1_lower: 134,
     color1_upper: 232,
@@ -74,7 +79,6 @@ color_range : {
     color3_lower: 132,
     color3_upper: 255
   },
-
   green: {
     color1_lower: 40, 
     color1_upper: 100,
@@ -84,39 +88,13 @@ color_range : {
     color3_upper: 250,
   },
   blue: {
-    color1_lower: 107,
-    color1_upper: 180,
-    color2_lower: 136,
-    color2_upper: 255,
-    color3_lower: 0,
-    color3_upper: 255
+    color1_lower: 181,
+    color1_upper: 201,
+    color2_lower: 105,
+    color2_upper: 125,
+    color3_lower: 106,
+    color3_upper: 126
   },
-  Light_sky_blue: {
-    color1_lower: 135,
-    color1_upper: 255,
-    color2_lower: 206,
-    color2_upper: 255,
-    color3_lower: 235,
-    color3_upper: 255
-   },
-    pastel_blue: {
-    color1_lower: 173,
-    color1_upper: 255,
-    color2_lower: 216,
-    color2_upper: 255,
-    color3_lower: 230,
-    color3_upper: 255
-   },
-    light_cyan: {
-    color1_lower: 224,
-    color1_upper: 255,
-    color2_lower: 255,
-    color2_upper: 255,
-    color3_lower: 235,
-    color3_upper: 255
-   },
-  
-
   black: {
     color1_lower: 0,
     color1_upper: 0,
@@ -143,10 +121,35 @@ color_range : {
     color3_lower: 0,
     color3_upper: 255
   }
-  
-
 }
 
+
+board_color_range : {
+  red: {
+    color1_lower: 39,
+    color1_upper: 99,
+    color2_lower: 45,
+    color2_upper: 105,
+    color3_lower: 129,
+    color3_upper: 199
+  },
+  brown: {
+    color1_lower: 41, 
+    color1_upper: 101,
+    color2_lower: 67,
+    color2_upper: 127, 
+    color3_lower: 120,
+    color3_upper: 180,
+  }, 
+  blue: {
+    color1_lower: 96,
+    color1_upper: 136,
+    color2_lower: 61,
+    color2_upper: 101,
+    color3_lower: 58,
+    color3_upper: 98
+  }
+}
 # 목표 모양 (3: triangle, 12: cross, 4: square 8: circle) # fix 0: circle, 1: square, 2: cross 3: triangle
 target_shape: 8
 

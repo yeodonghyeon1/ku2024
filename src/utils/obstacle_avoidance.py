@@ -28,7 +28,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import datatypes.point_class as pc
 
 
-def ob_filtering(obstacles, dist_to_goal, angle_to_goal, span_angle, angle_range, distance_range, close_dist=4):
+def ob_filtering(obstacles, dist_to_goal, angle_to_goal, span_angle, angle_range, distance_range, close_dist=4, scale=1):
     """filter dangerous obstacles among all of them
 
     Args:
@@ -82,7 +82,8 @@ def ob_filtering(obstacles, dist_to_goal, angle_to_goal, span_angle, angle_range
         # add span angle NOT to crash
         begin_ang -= span_angle
         end_ang += span_angle
-
+        begin_ang -= scale
+        end_ang += scale
         # distance from boat to obstacle using projection
         begin = pc.Point(ob.begin.x, ob.begin.y)
         end = pc.Point(ob.begin.x, ob.begin.y)
