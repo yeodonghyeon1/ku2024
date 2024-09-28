@@ -129,7 +129,7 @@ def visualize(dc, inrange_obstacles, danger_angels):
     )
 
     # station과 그 방향
-    for i in range(0, 5):
+    for i in [0, 4]:
         x_pos = dc.waypoints_dock[i][0]
         y_pos = dc.waypoints_dock[i][1]
 
@@ -157,18 +157,18 @@ def visualize(dc, inrange_obstacles, danger_angels):
         visual.marker_array_append_rviz(all_markers, txt)
 
         # station line
-        station_line_x = 8 * math.cos(math.radians(dc.station_dir)) + x_pos
-        station_line_y = 8 * math.sin(math.radians(dc.station_dir)) + y_pos
-        station_line = visual.linelist_rviz(
-            name="waypoints_dock",
-            id=ids.pop(),
-            lines=[[x_pos, y_pos], [station_line_x, station_line_y]],
-            color_r=65,
-            color_g=53,
-            color_b=240,
-            scale=0.1,
-        )
-        visual.marker_array_append_rviz(all_markers, station_line)
+        # station_line_x = 8 * math.cos(math.radians(dc.station_dir)) + x_pos
+        # station_line_y = 8 * math.sin(math.radians(dc.station_dir)) + y_pos
+        # station_line = visual.linelist_rviz(
+        #     name="waypoints_dock",
+        #     id=ids.pop(),
+        #     lines=[[x_pos, y_pos], [station_line_x, station_line_y]],
+        #     color_r=65,
+        #     color_g=53,
+        #     color_b=240,
+        #     scale=0.1,
+        # )
+        # visual.marker_array_append_rviz(all_markers, station_line)
 
     # 장애물, 탐색 범위
     if dc.state == 0:

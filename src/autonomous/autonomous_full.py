@@ -322,7 +322,7 @@ class Autonomous:
                 if self.target_found:
                     self.state += 1
                 else:
-                    self.state = self.next_to_visit
+                    self.state = 5
                     pass
             else:
                 self.state += 1
@@ -349,7 +349,7 @@ class Autonomous:
             target (list): 타겟을 찾았고, [넓이, 중앙지점] 정보를 담고 있음
         """
         # self.show_window()
-        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=False)
+        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=True)
 
         
         if self.target_color == 'black2':
@@ -834,7 +834,7 @@ def main():
             if arrived:  # current goal in and change goal
                auto.set_next_goal() 
             else:
-                if auto.waypoint_idx == 2:
+                if auto.waypoint_idx == 3:
                     docking_part(auto)
                     auto.set_next_goal() 
                 else:
@@ -892,7 +892,7 @@ def main():
                     limit_back_speed = 1350
                     PID_distance_value = 8
 
-                    #-------------------------------------------------------------------------#
+                    #------------------------------67-------------------------------------------#
 
                     PID_distance = int(abs(math.log(pow(PID_distance, PID_distance_value), 2)))
                     PID_angle = int(PID_angle)
@@ -903,8 +903,8 @@ def main():
                         thruster_speed_L = thruster_speed_L - abs(PID_angle)
                         thruster_speed_R = thruster_speed_R + abs(PID_angle)
 
-                    thruster_speed_L = thruster_speed_L + PID_distance
-                    thruster_speed_R = thruster_speed_R + PID_distance
+                    # thruster_speed_L = thruster_speed_L + PID_distance
+                    # thruster_speed_R = thruster_speed_R + PID_distance
 
 
                     # if error_angle > -1.0 and error_angle < 0.0: #go light 

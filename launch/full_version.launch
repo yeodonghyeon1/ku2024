@@ -40,7 +40,7 @@
 	<!-- <node name="rqt" pkg="rqt_graph" type="rqt_graph"/> -->
 	
 	<!-- Record -->
-	<!--<node pkg="rosbag" type="record" name="rosbag_record" required="true"  args="-a -o /media/jetson/data/rosbag/"  /> -->
+	<node pkg="rosbag" type="record" name="rosbag_record" required="true"  args="-a -o /media/jetson/data/rosbag/"  />
 
 	<!-- Parameters -->
 	<rosparam command="load" file="$(find ku2023)/params/lidar_params.yaml"/>

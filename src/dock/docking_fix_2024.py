@@ -255,8 +255,10 @@ class Docking:
         # )
 
     def heading_callback(self, msg):
-        self.psi = -(msg.data - self.imu_fix)
-        
+        try:
+            self.psi = -(msg.data - self.imu_fix)
+        except:
+            print("imu_fix is not input")
     def boat_position_callback(self, msg):
         self.boat_x = msg.x + self.diff[0]
         self.boat_y = msg.y + self.diff[1]
@@ -266,18 +268,22 @@ class Docking:
         # [msg.obstacle.begin.x, msg.obstacle.begin.y, msg.obstacle.end.x, msg.obstacle.end.y]
 
     def cam_callback(self, msg):
-        img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-        if img.size == (640 * 480 * 3):
-            self.raw_img = img
-            self.color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
-            # self.color_check = cv2.cvtColor(self.color_check, cv2.COLOR_BGR2HSV)
+        try:
+            img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+            if img.size == (640 * 480 * 3):
+                self.raw_img = img
+                self.color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
+                self.color_check = cv2.cvtColor(self.color_check, cv2.COLOR_BGR2HSV)
 
-            check_img = img
-            check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
-            # [120  98 189]
-            #191, 115, 116
-            #188 115 115
-            pass
+                check_img = img.copy()
+                check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
+                cv2.imshow("check_color", check_img)
+                # [120  98 189]
+                #191, 115, 116
+                #188 115 115
+                pass
+        except:
+            print("camera error")
 
     def get_trackbar_pos(self):
         """get trackbar poses and set each values"""
@@ -364,7 +370,7 @@ class Docking:
                 if self.target_found:
                     self.state += 1
                 else:
-                    self.state = self.next_to_visit
+                    self.state = 5
                     pass
             else:
                 self.state += 1
@@ -390,7 +396,7 @@ class Docking:
             True/False (bool): 타겟을 찾음(True), 찾지 못함(False)
             target (list): 타겟을 찾았고, [넓이, 중앙지점] 정보를 담고 있음
         """
-        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=False)
+        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=True)
 
         
         if self.target_color == 'black2':
@@ -701,7 +707,6 @@ class Docking:
             raw_img = cv2.resize(self.raw_img, dsize=(0, 0), fx=0.5, fy=0.5)
             col2 = cv2.resize(self.shape_img, dsize=(0, 0), fx=0.5, fy=0.5)  # 타겟 검출 결과
             # cv2.imshow("test", cv2.hconcat([raw_img, col2]))
-            cv2.imshow("shape", self.shape_img)
             cv2.imshow("controller", raw_img)
 
 def shutdown():
@@ -793,7 +798,7 @@ def main():
                     angle_to_goal=docking.psi_goal,
                     angle_range=docking.ob_angle_range,
                 )
-            if abs(error_angle) > 100:
+            if abs(error_angle) > 5:
                 u_thruster = True
             else:
                 u_thruster = False
@@ -817,10 +822,8 @@ def main():
                 else:
                     docking.target = []  # 타겟 정보 초기화(못 찾음)
                     docking.target_found = False  # 타겟 미발견 플래그
-                    rospy.sleep(0.2)
                     docking.thrusterL_pub.publish(1550)
                     docking.thrusterR_pub.publish(1550)
-                    rospy.sleep(1)
 
             # 아직 충분히 탐색하기 전
             else:
@@ -1015,6 +1018,8 @@ def docking_part(auto):
                 angle_to_goal=docking.psi_goal,
                 angle_range=docking.ob_angle_range,
             )
+            docking.thruster_speed_L = 1500
+            docking.thruster_speed_R = 1500
             detected = docking.check_board()  # 타겟이 탐지 되었는가?
             docking.insert_the_borad_target()
             docking.use_the_board = True
