@@ -11,7 +11,7 @@ ob_angle_range : [-100, 100]
 etk_use : False 
 
 # want start docking state
-start_docking_state : 5
+start_docking_state : 3
 
 # 장애물 좌우에 추가할 안전 각도 (deg)
 span_angle : 15
@@ -49,21 +49,74 @@ station_dir: -10
   #red 250 200 177
     #brown 180 140 2
     #blue 150 140 120
+
+
 color_range : {
+#inside
+  # red: {
+  #   color1_lower: 0,
+  #   color1_upper: 90,
+  #   color2_lower: 145,
+  #   color2_upper: 255,
+  #   color3_lower: 83,
+  #   color3_upper: 255
+  # },
+  # green: {
+  #   color1_lower: 40, 
+  #   color1_upper: 100,
+  #   color2_lower: 61,
+  #   color2_upper: 255, 
+  #   color3_lower: 0,
+  #   color3_upper: 250,
+  # },
+  # brown: {
+  #   color1_lower: 3, 
+  #   color1_upper: 11,
+  #   color2_lower: 62,
+  #   color2_upper: 147, 
+  #   color3_lower: 107,
+  #   color3_upper: 159,
+  # },  
+  # blue: {
+  #   color1_lower: 117,
+  #   color1_upper: 138,
+  #   color2_lower: 87,
+  #   color2_upper: 183,
+  #   color3_lower: 138,
+  #   color3_upper: 187
+  # },
+  # black: {
+  #   color1_lower: 0,
+  #   color1_upper: 0,
+  #   color2_lower: 0,
+  #   color2_upper: 0,
+  #   color3_lower: 0,
+  #   color3_upper: 22
+  # },
+  # black2: {
+  #   color1_lower: 255,
+  #   color1_upper: 255,
+  #   color2_lower: 255,
+  #   color2_upper: 255,
+  #   color3_lower: 240,
+  #   color3_upper: 255
+  # },
+  # orange: {
+  #   color1_lower: 0,
+  #   color1_upper: 255,
+  #   color2_lower: 0,
+  #   color2_upper: 255,
+  #   color3_lower: 0,
+  #   color3_upper: 255
+  # }
+
+#outside
   red: {
-    color1_lower: 240,
-    color1_upper: 250,
-    color2_lower: 190,
-    color2_upper: 210,
-    color3_lower: 167,
-    color3_upper: 177
-  },
-  red_2: {
-    color1_lower: 66,
-    color1_upper: 126,
-    color2_lower: 86,
-    color2_upper: 126,
-    color3_lower: 225,
+    color1_lower: 0,
+    color1_upper: 90,
+    color2_lower: 145,
+    color2_upper: 255,
+    color3_lower: 83,
     color3_upper: 255
   },
   green: {
@@ -74,72 +127,79 @@ color_range : {
     color3_lower: 0,
     color3_upper: 250,
   },
-  #150 140 120
-  blue: {
-    color1_lower: 116,
-    color1_upper: 123,
-    color2_lower: 106,
-    color2_upper: 189,
-    color3_lower: 0,
-    color3_upper: 223
-  },
-  black: {
-    color1_lower: 0,
-    color1_upper: 0,
-    color2_lower: 0,
-    color2_upper: 0,
-    color3_lower: 0,
-    color3_upper: 22
-  },
+  brown: {
+    color1_lower: 3, 
+    color1_upper: 11,
+    color2_lower: 62,
+    color2_upper: 147, 
+    color3_lower: 107,
+    color3_upper: 159,
+  },  
 
-  black2: {
-    color1_lower: 255,
-    color1_upper: 255,
-    color2_lower: 255,
-    color2_upper: 255,
-    color3_lower: 240,
-    color3_upper: 255
-  },
-
-  orange: {
-    color1_lower: 0,
-    color1_upper: 255,
-    color2_lower: 0,
-    color2_upper: 255,
-    color3_lower: 0,
-    color3_upper: 255
-  }
 }
-
 
 board_color_range : {
+#inside
+  # red: {
+  #   color1_lower: 0,
+  #   color1_upper: 90,
+  #   color2_lower: 145,
+  #   color2_upper: 255,
+  #   color3_lower: 83,
+  #   color3_upper: 255
+  # },
+  # brown: {
+  #   color1_lower: 3, 
+  #   color1_upper: 11,
+  #   color2_lower: 62,
+  #   color2_upper: 147, 
+  #   color3_lower: 107,
+  #   color3_upper: 159,
+  # },  
+  # blue: {
+  #   color1_lower: 117,
+  #   color1_upper: 138,
+  #   color2_lower: 87,
+  #   color2_upper: 183,
+  #   color3_lower: 138,
+  #   color3_upper: 187
+  # },
+#outside
   red: {
-    color1_lower: 39,
-    color1_upper: 99,
-    color2_lower: 45,
-    color2_upper: 105,
-    color3_lower: 129,
-    color3_upper: 199
+    color1_lower: 0,
+    color1_upper: 14,
+    color2_lower: 53,
+    color2_upper: 255,
+    color3_lower: 209,
+    color3_upper: 255
+  },
+  red_2: {
+    color1_lower: 176,
+    color1_upper: 179,
+    color2_lower: 0,
+    color2_upper: 255,
+    color3_lower: 0,
+    color3_upper: 255
   },
   brown: {
-    color1_lower: 41, 
-    color1_upper: 101,
-    color2_lower: 67,
-    color2_upper: 127, 
-    color3_lower: 120,
-    color3_upper: 180,
-  }, 
+    color1_lower: 0, 
+    color1_upper: 17,
+    color2_lower: 8,
+    color2_upper: 255, 
+    color3_lower: 219,
+    color3_upper: 255,
+  },  
   blue: {
-    color1_lower: 96,
-    color1_upper: 136,
-    color2_lower: 61,
-    color2_upper: 101,
-    color3_lower: 58,
-    color3_upper: 98
-  }
+    color1_lower: 116,
+    color1_upper: 129,
+    color2_lower: 94,
+    color2_upper: 162,
+    color3_lower: 217,
+    color3_upper: 255
+  },
 }
 
-# 목표 모양 (3: triangle, 12: cross, 4: square 8: circle) # fix 0: circle, 1: square, 2: cross 3: triangle
+# 목표 모양 (3: triangle, 12: cross, 4: square 8: circle) # fix 0: c  ircle, 1: square, 2: cross 3: triangle
 target_shape: 8
 
 # 목표 색깔 (red, green, blue, black, black2, orange)

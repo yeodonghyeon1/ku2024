@@ -25,8 +25,8 @@ def main():
     # fake_gps.longitude -= 0.0030
 
     while not rospy.is_shutdown():
-        fake_gps.latitude += 0.000001
-        fake_gps.longitude += 0.000001
+        fake_gps.latitude += 0.0000003
+        fake_gps.longitude += 0.0000003
 
         pub.publish(fake_gps)
         rate.sleep()

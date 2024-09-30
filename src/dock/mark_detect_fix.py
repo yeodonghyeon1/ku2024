@@ -134,33 +134,8 @@ def is_target_fix(target_shape, target_detect):
 
     return True
 
-def detect_target_state_zero_version2(search_all_maybe_image_board, img, preprocessed, mark_detect_area):
-    """detect all marks and get target information if target mark is there
+def detect_target_state_zero_version2(search_all_maybe_image_board, color, img, preprocessed, mark_detect_area):
 
-    1. 모폴로지 연산으로 빈 공간 완화 & 노이즈 제거
-    2. 도형 검출 및 근사
-    3. 넓이 작은 것은 제외
-    4. 변의 개수로 타겟 판단 및 시각화
-
-    Args:
-        img (np.ndarray): image only with target color
-        target_shape (int): number of sides of target shape. 3, 4, or over
-        draw_contour (bool): Whether to draw detected marks
-
-    Returns:
-        target (list): target detected information. [area of target (in pixel), location of target in the image (in pixel, only column)]
-        shape (numpy.ndarray): detection results
-        max_area (float): max area (if target is not detected, 0)
-
-    Note:
-        * approxPolyDP()의 반환인 approx의 구조 (삼각형일 때)
-            * type: numpy.ndarray
-            * shape: (3, 1, 2) -> 변 개수, 1, [행, 열] 정보이므로 요소 두 개
-            * 예: [[[105, 124]], [[107, 205]], [[226, 163]]]
-        * 때에 따라서는 같은 도형이 여러 개 발견될 수도 있음.
-            * 다른 모양의 도형이 프레임에서 잘린다든지, 다른 물체를 오인한다든지
-            * 일단 너비가 최대인 것을 따라가도록 설정
-    """
     # 기본 변수 선언
     detected = False  # 타겟을 발견했는가
     max_area = 0  # 가장 넓은 넓이의 도형
@@ -173,6 +148,10 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, img, preproc
     # 시각화 결과 영상 생성
     shapes = cv2.cvtColor(morph, cv2.COLOR_GRAY2BGR)  # 시각화할 image
     
+    (x, y ) , (w,h) =  (0,100) ,(640, 250)
+    roi = morph[y : y+h, x: x+w]
+    morph = roi
+    cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
     # (x, y ) , (w,h) =  (100, 100) ,(400, 250)
     # roi = morph[y : y+h, x: x+w]
     # morph = roi
@@ -192,12 +171,10 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, img, preproc
         # print("area : {} / {} / {}".format(area, mark_detect_area, target_detect_area))
         
         
-        #cv2.imshow("baa", shapes)
+        # cv2.imshow("baa", shapes)
         # 변의 개수
         vertex_num = len(approx)
-        # print("# of vertices : {}".format(vertex_num))
-        #corner = cv2.cornerHarris(shape, 2, 3, 0.04)
-        # 탐지 도형 구분
+
         # 삼각형
         if vertex_num == 3:
             detected = True
@@ -215,13 +192,14 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, img, preproc
                 detected = True
         else:
             continue
+        # print(vertex_num, color)
         # 탐지된 도형의 중앙 지점, 도형을 감싸는 사각형 꼭짓점 좌표
         box_points, center_point = contour_points(approx)
 
         # 타겟 정보 저장 (해당 화면에서 타겟이 검출되었다면)
         if detected:
             if area > max_area:  # 최대 크기라면 정보 갱신
-                search_all_maybe_image_board.append([vertex_num, preprocessed[center_point[0], center_point[1]]])
+                search_all_maybe_image_board.append([vertex_num, color])
                 target = [area, center_point[0], center_point[1]] #(edit) center_point[1] 추가
                 max_area = area
             else:
@@ -236,7 +214,7 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, img, preproc
             center_point=center_point,
             is_target=detected,
         )
-
+    cv2.imshow("shapes", shapes)
     # 타겟 검출 결과 반환
     if max_area != 0:
         return target, shapes, max_area, search_all_maybe_image_board
@@ -420,7 +398,7 @@ def detect_target(img, target_shape, mark_detect_area, target_detect_area, draw_
     shape = cv2.line(shapes, (320, 0), (320, 480), (255, 0, 0), 2)  # 중앙 세로선
 
   
-    (x, y ) , (w,h) =  (100, 100) ,(400, 250)
+    (x, y ) , (w,h) =  (0,100) ,(640, 250)
     roi = morph[y : y+h, x: x+w]
     morph = roi
     cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)

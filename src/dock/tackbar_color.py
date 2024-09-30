@@ -22,6 +22,9 @@ cv2.createTrackbar('H_max', 'HSV_Toolbar', 179, 179, nothing)
 cv2.createTrackbar('S_max', 'HSV_Toolbar', 255, 255, nothing)
 cv2.createTrackbar('V_max', 'HSV_Toolbar', 255, 255, nothing)
 
+# Define the scaling factor to reduce image size
+scaling_factor = 0.5  # 50% of the original size
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -51,10 +54,19 @@ while True:
     # Apply the mask to get the result
     result = cv2.bitwise_and(frame, frame, mask=mask)
 
-    # Show the original, mask, and result windows
-    cv2.imshow('Original Frame', frame)
-    cv2.imshow('HSV Mask', mask)
-    cv2.imshow('Filtered Result', result)
+    # Resize the original, mask, and result images
+    frame_resized = cv2.resize(frame, None, fx=scaling_factor, fy=scaling_factor)
+    mask_resized = cv2.resize(mask, None, fx=scaling_factor, fy=scaling_factor)
+    result_resized = cv2.resize(result, None, fx=scaling_factor, fy=scaling_factor)
+
+    # Convert the mask to a BGR image for display
+    mask_resized_bgr = cv2.cvtColor(mask_resized, cv2.COLOR_GRAY2BGR)
+
+    # Stack the resized images horizontally
+    combined_display = np.hstack((frame_resized, mask_resized_bgr, result_resized))
+
+    # Show the combined window
+    cv2.imshow('Combined View', combined_display)
 
     # Break the loop on ESC press
     if cv2.waitKey(10) == 27:

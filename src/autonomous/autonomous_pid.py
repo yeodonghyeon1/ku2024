@@ -41,7 +41,7 @@ from ku2023.msg import ObstacleList
 from utils.tools import *
 import copy
 from utils.PID import PID
-
+import time
 
 class Autonomous:
     def __init__(self):
@@ -231,6 +231,8 @@ class Autonomous:
         )
         print("")
         print("{:<9} : {:6.2f} m".format("distance", self.distance_to_goal))
+        self.stop_time = 0
+        print("stop_time", self.stop_time)
         print("")
         print("-" * 70)
 
@@ -263,7 +265,6 @@ def main():
     util_n =37 ## 5~7
     fix_imu=0.0
     imu_fix = True
-
     while not auto.is_all_connected():
         rospy.sleep(0.2)
     print("\n{:<>70}".format(" All Connected !"))
@@ -278,21 +279,29 @@ def main():
             print("Finished!")
             return
         else:
-            
+            print(auto.waypoint_idx, auto.remained_waypoints)
             # auto.trajectory.append([auto.boat_x, auto.boat_y])         
             arrived = auto.arrival_check()  # 현 시점에서 목표까지 남은 거리 재계산
             if arrived:  # current goal in and change goal
-                auto.thrusterL_pub.publish(1450)
-                auto.thrusterR_pub.publish(1450)
-                auto.thrusterL_pub.publish(1450)
-                auto.thrusterR_pub.publish(1450)
-                rospy.sleep(1.5)
-                auto.thrusterL_pub.publish(1500)
-                auto.thrusterR_pub.publish(1500)
-                auto.thrusterL_pub.publish(1500)
-                auto.thrusterR_pub.publish(1500)
-                rospy.sleep(2.0)
-                auto.set_next_goal()
+                start = time.time()
+                while True:
+                    end = time.time()
+                    stop_time = end-start
+                    self_stop_time  = stop_time
+                    print(stop_time)
+                    if stop_time < 1:    
+                        thruster_speed_L = 1400    
+                        thruster_speed_R = 1400
+                        auto.thrusterL_pub.publish(1400)
+                        auto.thrusterR_pub.publish(1400)
+                    elif stop_time < 3:
+                        thruster_speed_L = 1500    
+                        thruster_speed_R = 1500
+                        auto.thrusterL_pub.publish(1500)
+                        auto.thrusterR_pub.publish(1500)
+                    else:
+                        auto.set_next_goal()
+                        break
             else:
                 auto.trajectory.append([auto.boat_x, auto.boat_y])  # 이동 경로 추가
                 ###move and add the next goal
@@ -339,12 +348,15 @@ def main():
                 PID_angle = angle_PID.update(error_angle)
                 PID_distance = distance_PID.update(auto.distance_to_goal)
                 #-----------------edit----------------------------------------------------#
-
+                #1900 1100
                 thruster_speed_L=1560
                 thruster_speed_R=1560
                 limit_go_speed = 1750
                 limit_back_speed = 1350
                 PID_distance_value = 8
+
+                static_speed_L = 1700
+                static_speed_R = 1700
 
                 #-------------------------------------------------------------------------#
 

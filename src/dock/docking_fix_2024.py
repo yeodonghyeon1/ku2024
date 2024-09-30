@@ -74,6 +74,9 @@ import utils.obstacle_avoidance as oa
 from ku2023.msg import ObstacleList
 from utils.tools import *
 from dock.color import ShapeColorAnalyzer
+from collections import Counter
+import ast 
+import time
 class Docking:
 
     def __init__(self):
@@ -236,6 +239,7 @@ class Docking:
         self.check_the_three_state = False
         self.print_target_color = 0
         self.print_target_std = 0
+        self.start_time = 0
         # controller
         cv2.namedWindow("controller")
         # cv2.createTrackbar("color1 min", "controller", self.color_range[0][0], 180, lambda x: x)
@@ -272,12 +276,12 @@ class Docking:
             img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
             if img.size == (640 * 480 * 3):
                 self.raw_img = img
-                self.color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
-                self.color_check = cv2.cvtColor(self.color_check, cv2.COLOR_BGR2HSV)
+                # self.color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
+                # self.color_check = cv2.cvtColor(self.color_check, cv2.COLOR_BGR2HSV)
 
-                check_img = img.copy()
-                check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
-                cv2.imshow("check_color", check_img)
+                # check_img = img.copy()
+                # check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
+                # cv2.imshow("check_color", check_img)
                 # [120  98 189]
                 #191, 115, 116
                 #188 115 115
@@ -351,6 +355,8 @@ class Docking:
                 change_state = True
                 self.mark_check_cnt = 0
                 self.detected_cnt = 0
+                self.start_time = time.time()
+
             else:
                 change_state = False
                 
@@ -432,7 +438,7 @@ class Docking:
             target (list): 타겟을 찾았고, [넓이, 중앙지점] 정보를 담고 있음
         """
 
-        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=False)
+        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=True)
 
         self.hsv_img = preprocessed
         # # version1 we use to gray scale and then contour image what is shape and color
@@ -476,13 +482,15 @@ class Docking:
         #version2 we use to color_range so wo know that shape color before started autonomous
         for i in self.board_color_array:
             self.hsv_img_list.append(mark_detect.select_color(preprocessed, i))  # 원하는 색만 필터링
-        for j in self.hsv_img_list:
+        for c, j in enumerate(self.hsv_img_list):
             target, self.shape_img, self.mark_area, search_all = mark_detect.detect_target_state_zero_version2(
                 self.search_all_maybe_image_board,
+                self.board_color_range.keys()[c],
                 j,
                 preprocessed,
                 self.mark_detect_area,
             )  # target = [area, center_col] 형태로 타겟의 정보를 받음
+
             self.search_all_maybe_image_board = search_all
 
         temp_board_count = 0
@@ -497,12 +505,12 @@ class Docking:
             elif self.search_all_maybe_image_board[i][0] == 12:
                 self.cross += 1
 
-
+        print(len(self.search_all_maybe_image_board))
         self.max_board_count = temp_board_count
         self.hsv_img_list = []
-        if len(self.search_all_maybe_image_board) >= 100:
-            self.search_all_maybe_image_board = []
-            self.max_board_count = 0
+        # if len(self.search_all_maybe_image_board) >= 100:
+        #     self.search_all_maybe_image_board = []
+        #     self.max_board_count = 0
 
         if return_target == True:
             return target
@@ -522,15 +530,56 @@ class Docking:
         if target_list[0] == self.cross:
             self.target_shape = 12
         result = self.circle + self.triangle + self.cross + self.square
-        if result >= 5000:
-            sh = ShapeColorAnalyzer()
-            sh.search_all_maybe_image_board = self.search_all_maybe_image_board
-            sh.insert_the_borad_target(self.target_shape)
-            self.print_target_color = sh.mean_color
-            self.print_target_std = sh.std_color
-            self.color_range[0] = np.subtract(np.array(sh.mean_color).astype(int), 30)
-            self.color_range[1] = np.add(np.array(sh.mean_color).astype(int), 30)
-            self.check_the_three_state = sh.check_the_three_state 
+        # print(self.search_all_maybe_image_board)
+        color_list = []
+        if result >= 1000:
+            for i in self.search_all_maybe_image_board:
+                if i[0] == self.target_shape:
+                    color_list.append(str(i[1]))
+
+            color_counter = Counter(color_list)
+            most_common_color = color_counter.most_common(1)
+            target_color_range = rospy.get_param("color_range")[most_common_color[0][0]]
+            color_range = np.array(
+            [
+                [
+                    target_color_range["color1_lower"],
+                    target_color_range["color2_lower"],
+                    target_color_range["color3_lower"],
+                ],
+                [
+                    target_color_range["color1_upper"],
+                    target_color_range["color2_upper"],
+                    target_color_range["color3_upper"],
+                ],
+            ]
+            )
+            self.color_range = color_range
+            self.check_the_three_state = True
+            # 수정된 문자열을 NumPy 배열로 변환
+            # array = eval(str(most_common_color[0][0]).replace(" ", ", ").replace(",,", ",").replace("[,", "["))
+            # print(array)
+
+            # most_color = np.array(most_common_color[0][0])
+            # print(most_color)
+            # print(most_color[0])
+            # print(most_color[0], most_color[1])
+            # self.color_range[0] = most_color[0]
+            # self.color_range[1] = most_color[1]
+            # print(self.color_range[0])
+            # print(self.color_range[1])
+
+
+
+        # if result >= 5000:
+        #     sh = ShapeColorAnalyzer()
+        #     sh.search_all_maybe_image_board = self.search_all_maybe_image_board
+        #     sh.insert_the_borad_target(self.target_shape)
+        #     self.print_target_color = sh.mean_color
+        #     self.print_target_std = sh.std_color
+        #     self.color_range[0] = np.subtract(np.array(sh.mean_color).astype(int), 30)
+        #     self.color_range[1] = np.add(np.array(sh.mean_color).astype(int), 30)
+        #     self.check_the_three_state = sh.check_the_three_state 
     def check_docked(self):
         """스테이션에 도크되었는지 확인
 
@@ -681,7 +730,6 @@ class Docking:
 
         print("")
         try:
-            print("color : {}".format(self.color_check))
             print("square: {}, triangle: {}, circle {},  cross {}".format(self.square, self.triangle, self.circle,  self.cross))
             print("target: {}".format(self.target_shape))
             print("target_color: {}, std_color {}".format(self.print_target_color , self.print_target_std))
@@ -782,14 +830,13 @@ def main():
             u_thruster = True
 
         elif docking.state == 3:
-            error_angle = oa.calc_desire_angle(
-                danger_angles=danger_angles,
-                angle_to_goal=docking.psi_goal,
-                angle_range=docking.ob_angle_range,
-            )
+            u_thruster = False
+            docking.thruster_speed_L = 1500
+            docking.thruster_speed_R = 1500
             detected = docking.check_board()  # 타겟이 탐지 되었는가?
             docking.insert_the_borad_target()
             docking.use_the_board = True
+
             # # 지정된 횟수만큼 탐색 실시해봄
             
         elif docking.state == 4:
@@ -798,10 +845,12 @@ def main():
                     angle_to_goal=docking.psi_goal,
                     angle_range=docking.ob_angle_range,
                 )
-            if abs(error_angle) > 5:
-                u_thruster = True
+            if abs(error_angle) > 100:
+                docking.thruster_speed_L=1300
+                docking.thruster_speed_R=1600
             else:
                 u_thruster = False
+                docking.start_time = time.time()
                 docking.check_head = True
 
         # 표지 판단
@@ -820,10 +869,16 @@ def main():
                     docking.target_found = True  # 타겟 발견 플래그
                 # 타겟 마크가 충분히 검출되지 않아 미검출로 판단
                 else:
-                    docking.target = []  # 타겟 정보 초기화(못 찾음)
-                    docking.target_found = False  # 타겟 미발견 플래그
-                    docking.thrusterL_pub.publish(1550)
-                    docking.thrusterR_pub.publish(1550)
+                    end_time = time.time()
+                    stop_time = end_time - docking.start_time
+                    if stop_time < 20:    
+                        docking.target = []  # 타겟 정보 초기화(못 찾음)
+                        docking.target_found = False  # 타겟 미발견 플래그
+                        docking.thrusterL_pub.publish(1550)
+                        docking.thrusterR_pub.publish(1550)
+                    else:
+                        docking.target_found = True  # 타겟 발견 플래그
+
 
             # 아직 충분히 탐색하기 전
             else:
@@ -879,6 +934,10 @@ def main():
                         error_angle = 6.0
                     else:
                         #직진 들어왔다고 판단 직진 쓰러스트
+                        end_time = time.time()
+                        stop_time = end_time - docking.start_time
+                        if stop_time > 10:    
+                            return
                         error_angle = 0
                         #직진
                 else:
@@ -915,8 +974,8 @@ def main():
             # 선속 결정
             #u_thruster = docking.thruster_station
 
-        docking.thrusterR_pub.publish(docking.thruster_speed_L)
-        docking.thrusterL_pub.publish(docking.thruster_speed_R)
+        docking.thrusterR_pub.publish(docking.thruster_speed_R)
+        docking.thrusterL_pub.publish(docking.thruster_speed_L)
 
         # 각 모드에서 계산한 error_angle을 바탕으로 월드좌표계로 '가야 할 각도'를 계산함
         docking.psi_desire = rearrange_angle(docking.psi + error_angle)
@@ -1013,11 +1072,7 @@ def docking_part(auto):
             u_thruster = True
 
         elif docking.state == 3:
-            error_angle = oa.calc_desire_angle(
-                danger_angles=danger_angles,
-                angle_to_goal=docking.psi_goal,
-                angle_range=docking.ob_angle_range,
-            )
+            u_thruster = False
             docking.thruster_speed_L = 1500
             docking.thruster_speed_R = 1500
             detected = docking.check_board()  # 타겟이 탐지 되었는가?
@@ -1046,9 +1101,11 @@ def docking_part(auto):
                     angle_range=docking.ob_angle_range,
                 )
             if abs(error_angle) > 5:
-                u_thruster = True
+                docking.thruster_speed_L=1300
+                docking.thruster_speed_R=1600
             else:
                 u_thruster = False
+                docking.start_time = time.time()
                 docking.check_head = True
 
         # 표지 판단
@@ -1067,13 +1124,15 @@ def docking_part(auto):
                     docking.target_found = True  # 타겟 발견 플래그
                 # 타겟 마크가 충분히 검출되지 않아 미검출로 판단
                 else:
-                    docking.target = []  # 타겟 정보 초기화(못 찾음)
-                    docking.target_found = False  # 타겟 미발견 플래그
-                    rospy.sleep(0.2)
-                    docking.thrusterL_pub.publish(1550)
-                    docking.thrusterR_pub.publish(1550)
-                    rospy.sleep(1)
-
+                    end_time = time.time()
+                    stop_time = end_time - docking.start_time
+                    if stop_time < 20:    
+                        docking.target = []  # 타겟 정보 초기화(못 찾음)
+                        docking.target_found = False  # 타겟 미발견 플래그
+                        docking.thrusterL_pub.publish(1550)
+                        docking.thrusterR_pub.publish(1550)
+                    else:
+                        return
             # 아직 충분히 탐색하기 전
             else:
                 docking.target_found = False  # 타겟 미발견 플래그
@@ -1124,6 +1183,10 @@ def docking_part(auto):
                         error_angle = 6.0
                     else:
                         #직진 들어왔다고 판단 직진 쓰러스트
+                        end_time = time.time()
+                        stop_time = end_time - docking.start_time
+                        if stop_time > 10:    
+                            return
                         error_angle = 0
                         #직진
                 else:
@@ -1160,8 +1223,8 @@ def docking_part(auto):
             # 선속 결정
             #u_thruster = docking.thruster_station
 
-        docking.thrusterR_pub.publish(docking.thruster_speed_L)
-        docking.thrusterL_pub.publish(docking.thruster_speed_R)
+        docking.thrusterR_pub.publish(docking.thruster_speed_R)
+        docking.thrusterL_pub.publish(docking.thruster_speed_L)
 
         # 각 모드에서 계산한 error_angle을 바탕으로 월드좌표계로 '가야 할 각도'를 계산함
         docking.psi_desire = rearrange_angle(docking.psi + error_angle)

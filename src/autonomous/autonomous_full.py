@@ -43,7 +43,8 @@ import copy
 from utils.PID import PID
 from dock.docking_fix_2024 import *
 from dock.color import ShapeColorAnalyzer
-
+from collections import Counter
+import time
 class Autonomous:
     def __init__(self):
         # coordinates
@@ -269,6 +270,7 @@ class Autonomous:
         self.check_the_three_state = False
         self.print_target_color = 0
         self.print_target_std = 0
+        self.start_time = 0
         # pre-setting
         self.arrival_check()  # 다음 목표까지 남은 거리
 
@@ -276,12 +278,13 @@ class Autonomous:
         img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         if img.size == (640 * 480 * 3):
             self.raw_img = img
-            self.color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
+            # self.color_check = cv2.GaussianBlur(np.uint8([[self.raw_img[240, 320]]]), (5, 5), 0)
             # self.color_check = cv2.cvtColor(self.color_check, cv2.COLOR_BGR2HSV)
 
-            check_img = img
-            check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
 
+            # check_img = img.copy()
+            # check_img = cv2.circle(check_img, (320, 240), 3, (255,0,0), 2)
+            # cv2.imshow("check_color", check_img)
             # [120  98 189]
             #191, 115, 116
             #188 115 115
@@ -303,6 +306,7 @@ class Autonomous:
                 change_state = True
                 self.mark_check_cnt = 0
                 self.detected_cnt = 0
+                self.start_time = time.time()
             else:
                 change_state = False
                 
@@ -385,75 +389,72 @@ class Autonomous:
             target (list): 타겟을 찾았고, [넓이, 중앙지점] 정보를 담고 있음
         """
 
-        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=False)
+        preprocessed = mark_detect.preprocess_image(self.raw_img, blur=True , brightness=False, hsv=True)
 
         self.hsv_img = preprocessed
-        try:
-            # version1 we use to gray scale and then contour image what is shape and color
-            target, self.shape_img, self.mark_area, img_tj, search_all= mark_detect.detect_target_state_zero_version1(
-                self.image_trajectory,
-                self.search_all_maybe_image_board,
-                self.hsv_img,
-                self.target_shape,
-                self.mark_detect_area,
-                self.target_detect_area,
-                self.draw_contour,
-            )  # target = [area, center_col] 형태로 타겟의 정보를 받음
+        # try:
+        #     # version1 we use to gray scale and then contour image what is shape and color
+        #     target, self.shape_img, self.mark_area, img_tj, search_all= mark_detect.detect_target_state_zero_version1(
+        #         self.image_trajectory,
+        #         self.search_all_maybe_image_board,
+        #         self.hsv_img,
+        #         self.target_shape,
+        #         self.mark_detect_area,
+        #         self.target_detect_area,
+        #         self.draw_contour,
+        #     )  # target = [area, center_col] 형태로 타겟의 정보를 받음
 
-            self.image_trajectory = img_tj
-            self.search_all_maybe_image_board = search_all
-            temp_board_count = 0
-            for i in range(self.max_board_count+1, len(self.image_trajectory)):
-                temp_board_count = i
-                if self.image_trajectory[i][1] == 4:
-                    self.square += 1
-                elif self.image_trajectory[i][1] == 3:
-                    self.triangle += 1
-                elif self.image_trajectory[i][1] == 8:
-                    self.circle += 1
-                elif self.image_trajectory[i][1] == 12:
-                    self.cross += 1
+        #     self.image_trajectory = img_tj
+        #     self.search_all_maybe_image_board = search_all
+        #     temp_board_count = 0
+        #     for i in range(self.max_board_count+1, len(self.image_trajectory)):
+        #         temp_board_count = i
+        #         if self.image_trajectory[i][1] == 4:
+        #             self.square += 1
+        #         elif self.image_trajectory[i][1] == 3:
+        #             self.triangle += 1
+        #         elif self.image_trajectory[i][1] == 8:
+        #             self.circle += 1
+        #         elif self.image_trajectory[i][1] == 12:
+        #             self.cross += 1
 
-            print(self.max_board_count)
-            self.hsv_img_list = []
-            if len(self.image_trajectory) >= 100:
-                self.image_trajectory = []
-                self.max_board_count = 0
-        except:
-            target = []
-            pass
+        #     print(self.max_board_count)
+        #     self.hsv_img_list = []
+        #     if len(self.image_trajectory) >= 100:
+        #         self.image_trajectory = []
+        #         self.max_board_count = 0
+        # except:
+        #     target = []
+        #     pass
 
         #version2 we use to color_range so wo know that shape color before started autonomous
-        # for i in self.board_color_array:
-        #     self.hsv_img_list.append(mark_detect.select_color(preprocessed, i))  # 원하는 색만 필터링
-        # for j in self.hsv_img_list:
-        #     target, self.shape_img, self.mark_area, search_all = mark_detect.detect_target_state_zero_version2(
-        #         self.search_all_maybe_image_board,
-        #         j,
-        #         preprocessed,
-        #         self.mark_detect_area,
-        #     )  # target = [area, center_col] 형태로 타겟의 정보를 받음
-        #     self.search_all_maybe_image_board = search_all
+        for i in self.board_color_array:
+            self.hsv_img_list.append(mark_detect.select_color(preprocessed, i))  # 원하는 색만 필터링
+        for c, j in enumerate(self.hsv_img_list):
+            target, self.shape_img, self.mark_area, search_all = mark_detect.detect_target_state_zero_version2(
+                self.search_all_maybe_image_board,
+                self.board_color_range.keys()[c],
+                j,
+                preprocessed,
+                self.mark_detect_area,
+            )  # target = [area, center_col] 형태로 타겟의 정보를 받음
 
+            self.search_all_maybe_image_board = search_all
 
-        # temp_board_count = 0
-        # for i in range(self.max_board_count+1, len(self.search_all_maybe_image_board)):
-        #     temp_board_count = i
-        #     if self.search_all_maybe_image_board[i][0] == 4:
-        #         self.square += 1
-        #     elif self.search_all_maybe_image_board[i][0] == 3:
-        #         self.triangle += 1
-        #     elif self.search_all_maybe_image_board[i][0] == 8:
-        #         self.circle += 1
-        #     elif self.search_all_maybe_image_board[i][0] == 12:
-        #         self.cross += 1
+        temp_board_count = 0
+        for i in range(self.max_board_count+1, len(self.search_all_maybe_image_board)):
+            temp_board_count = i
+            if self.search_all_maybe_image_board[i][0] == 4:
+                self.square += 1
+            elif self.search_all_maybe_image_board[i][0] == 3:
+                self.triangle += 1
+            elif self.search_all_maybe_image_board[i][0] == 8:
+                self.circle += 1
+            elif self.search_all_maybe_image_board[i][0] == 12:
+                self.cross += 1
 
-
-        # self.max_board_count = temp_board_count
-        # self.hsv_img_list = []
-        # if len(self.search_all_maybe_image_board) >= 100:
-        #     self.search_all_maybe_image_board = []
-        #     self.max_board_count = 0
+        self.max_board_count = temp_board_count
+        self.hsv_img_list = []
 
         if return_target == True:
             return target
@@ -473,15 +474,31 @@ class Autonomous:
             self.target_shape = 12
 
         result = self.circle + self.triangle + self.cross + self.square
-        if result >= 5000:
-            sh = ShapeColorAnalyzer()
-            sh.search_all_maybe_image_board = self.search_all_maybe_image_board
-            sh.insert_the_borad_target(self.target_shape)
-            self.print_target_color = sh.mean_color
-            self.print_target_std = sh.std_color
-            self.color_range[0] = np.subtract(np.array(sh.mean_color).astype(int), 20)
-            self.color_range[1] = np.add(np.array(sh.mean_color).astype(int), 20)
-            self.check_the_three_state = sh.check_the_three_state 
+        color_list = []
+        if result >= 1000:
+            for i in self.search_all_maybe_image_board:
+                if i[0] == self.target_shape:
+                    color_list.append(str(i[1]))
+
+            color_counter = Counter(color_list)
+            most_common_color = color_counter.most_common(1)
+            target_color_range = rospy.get_param("color_range")[most_common_color[0][0]]
+            color_range = np.array(
+            [
+                [
+                    target_color_range["color1_lower"],
+                    target_color_range["color2_lower"],
+                    target_color_range["color3_lower"],
+                ],
+                [
+                    target_color_range["color1_upper"],
+                    target_color_range["color2_upper"],
+                    target_color_range["color3_upper"],
+                ],
+            ]
+            )
+            self.color_range = color_range
+            self.check_the_three_state = True
 
 
     def check_docked(self):
@@ -636,7 +653,6 @@ class Autonomous:
 
         print("")
         try:
-            print("color : {}".format(self.color_check))
             print("square: {}, triangle: {}, circle {},  cross {}".format(self.square, self.triangle, self.circle,  self.cross))
             print("target: {}".format(self.target_shape))
             print("target_color: {}, std_color {}".format(self.print_target_color , self.print_target_std))
@@ -832,7 +848,25 @@ def main():
             # auto.trajectory.append([auto.boat_x, auto.boat_y])         
             arrived = auto.arrival_check()  # 현 시점에서 목표까지 남은 거리 재계산
             if arrived:  # current goal in and change goal
-               auto.set_next_goal() 
+                start = time.time()
+                while True:
+                    end = time.time()
+                    stop_time = end-start
+                    self_stop_time  = stop_time
+                    print(stop_time)
+                    if stop_time < 1:    
+                        thruster_speed_L = 1400    
+                        thruster_speed_R = 1400
+                        auto.thrusterL_pub.publish(1400)
+                        auto.thrusterR_pub.publish(1400)
+                    elif stop_time < 3:
+                        thruster_speed_L = 1500    
+                        thruster_speed_R = 1500
+                        auto.thrusterL_pub.publish(1500)
+                        auto.thrusterR_pub.publish(1500)
+                    else:
+                        auto.set_next_goal()
+                        break
             else:
                 if auto.waypoint_idx == 3:
                     docking_part(auto)
