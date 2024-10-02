@@ -148,10 +148,10 @@ def detect_target_state_zero_version2(search_all_maybe_image_board, color, img, 
     # 시각화 결과 영상 생성
     shapes = cv2.cvtColor(morph, cv2.COLOR_GRAY2BGR)  # 시각화할 image
     
-    (x, y ) , (w,h) =  (0,100) ,(640, 250)
-    roi = morph[y : y+h, x: x+w]
-    morph = roi
-    cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
+    # (x, y ) , (w,h) =  (0,100) ,(640, 250)
+    # roi = morph[y : y+h, x: x+w]
+    # morph = roi
+    # cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
     # (x, y ) , (w,h) =  (100, 100) ,(400, 250)
     # roi = morph[y : y+h, x: x+w]
     # morph = roi
@@ -398,10 +398,10 @@ def detect_target(img, target_shape, mark_detect_area, target_detect_area, draw_
     shape = cv2.line(shapes, (320, 0), (320, 480), (255, 0, 0), 2)  # 중앙 세로선
 
   
-    (x, y ) , (w,h) =  (0,100) ,(640, 250)
-    roi = morph[y : y+h, x: x+w]
-    morph = roi
-    cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
+    # (x, y ) , (w,h) =  (0,100) ,(640, 250)
+    # roi = morph[y : y+h, x: x+w]
+    # morph = roi
+    # cv2.rectangle(shapes, (x,y,w,h), [0, 255, 0], 1)
 
     # 화면 내 모든 도형 검출
     contours, _ = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

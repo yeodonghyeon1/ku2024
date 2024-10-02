@@ -306,7 +306,7 @@ class Autonomous:
                 change_state = True
                 self.mark_check_cnt = 0
                 self.detected_cnt = 0
-                self.start_time = time.time()
+                self.start_time2 = time.time()
             else:
                 change_state = False
                 
@@ -499,7 +499,10 @@ class Autonomous:
             )
             self.color_range = color_range
             self.check_the_three_state = True
+    def calc_distance2(self, point):
+        self.distance_to_point = math.hypot(self.boat_x - point[0], self.boat_y - point[1])
 
+        return self.distance_to_point <= self.arrival_range
 
     def check_docked(self):
         """스테이션에 도크되었는지 확인
@@ -857,7 +860,7 @@ def main():
                     if stop_time < 1:    
                         thruster_speed_L = 1400    
                         thruster_speed_R = 1400
-                        auto.thrusterL_pub.publish(1400)
+                        auto.thrusterL_pub.publish(1430)
                         auto.thrusterR_pub.publish(1400)
                     elif stop_time < 3:
                         thruster_speed_L = 1500    
@@ -867,6 +870,9 @@ def main():
                     else:
                         auto.set_next_goal()
                         break
+                    # rate.sleep()
+                    rospy.sleep(0.1)
+
             else:
                 if auto.waypoint_idx == 3:
                     docking_part(auto)
@@ -920,10 +926,10 @@ def main():
                     PID_distance = distance_PID.update(auto.distance_to_goal)
                     #-----------------edit----------------------------------------------------#
 
-                    thruster_speed_L=1560
-                    thruster_speed_R=1560
-                    limit_go_speed = 1750
-                    limit_back_speed = 1350
+                    thruster_speed_L=1650
+                    thruster_speed_R=1650
+                    limit_go_speed = 1900
+                    limit_back_speed = 1100
                     PID_distance_value = 8
 
                     #------------------------------67-------------------------------------------#

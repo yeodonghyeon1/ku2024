@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
-	<arg name="filename" default="_2024-09-28-15-04-50.bag" /> 
+	<arg name="filename" default="_2024-10-02-12-51-09.bag" /> 
 	<node pkg="rosbag" type="play" name="rosbag_record" required="true" output="screen" args="/media/jetson/data/rosbag/$(arg filename)"  />
 	<node pkg="rviz" type="rviz" name="rviz_auto" args="-d $(find ku2023)/rviz/rviz_conf_auto.rviz" />
 	<node name="usb_cam_color" pkg="ku2023" type="usb_cam_color.py" />

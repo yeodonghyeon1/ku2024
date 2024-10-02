@@ -363,7 +363,7 @@ class Docking:
         elif self.state == 6:
             # 도킹 완료했는지 확인
             change_state = self.check_docked()
-
+            # change_state = False
         if change_state:
             print("")
             print("{:=^70}".format(" Change State "))
@@ -833,6 +833,8 @@ def main():
             u_thruster = False
             docking.thruster_speed_L = 1500
             docking.thruster_speed_R = 1500
+            docking.thrusterL_pub.publish(1500)
+            docking.thrusterR_pub.publish(1500)
             detected = docking.check_board()  # 타겟이 탐지 되었는가?
             docking.insert_the_borad_target()
             docking.use_the_board = True
@@ -840,16 +842,22 @@ def main():
             # # 지정된 횟수만큼 탐색 실시해봄
             
         elif docking.state == 4:
+            u_thruster = False
+            
             error_angle = oa.calc_desire_angle(
                     danger_angles=danger_angles,
                     angle_to_goal=docking.psi_goal,
                     angle_range=docking.ob_angle_range,
                 )
-            if abs(error_angle) > 100:
-                docking.thruster_speed_L=1300
-                docking.thruster_speed_R=1600
+            if abs(error_angle) > 5:
+                docking.thruster_speed_L=1650
+                docking.thruster_speed_R=1300
+                # docking.thrusterL_pub.publish(1650)
+                # docking.thrusterR_pub.publish(1300)
             else:
                 u_thruster = False
+                docking.thruster_speed_L = 1500
+                docking.thruster_speed_R = 1500
                 docking.start_time = time.time()
                 docking.check_head = True
 
@@ -871,7 +879,7 @@ def main():
                 else:
                     end_time = time.time()
                     stop_time = end_time - docking.start_time
-                    if stop_time < 20:    
+                    if stop_time < 20000000:    
                         docking.target = []  # 타겟 정보 초기화(못 찾음)
                         docking.target_found = False  # 타겟 미발견 플래그
                         docking.thrusterL_pub.publish(1550)
@@ -882,7 +890,15 @@ def main():
 
             # 아직 충분히 탐색하기 전
             else:
-                docking.target_found = False  # 타겟 미발견 플래그
+                end_time = time.time()
+                stop_time = end_time - docking.start_time
+                if stop_time < 20000000:    
+                    docking.target = []  # 타겟 정보 초기화(못 찾음)
+                    docking.target_found = False  # 타겟 미발견 플래그
+                    docking.thrusterL_pub.publish(1540)
+                    docking.thrusterR_pub.publish(1540)
+                else:
+                    docking.target_found = True  # 타겟 발견 플래그
 
             # 에러각 계산 방식 (1)
             error_angle = docking.station_dir - docking.psi
@@ -923,8 +939,7 @@ def main():
 
                         else:
                             print("line진입 직진")
-                            error_angle = 0
-                            u_thruster = True
+                            error_angle = 0 
                             in_line = True                    
                     elif first_divisions > docking.target[2]:
                         #좌회전 선회
@@ -935,8 +950,8 @@ def main():
                     else:
                         #직진 들어왔다고 판단 직진 쓰러스트
                         end_time = time.time()
-                        stop_time = end_time - docking.start_time
-                        if stop_time > 10:    
+                        stop_time = end_time - docking.start_time2
+                        if stop_time > 20:    
                             return
                         error_angle = 0
                         #직진
@@ -968,8 +983,7 @@ def main():
                 pass
         else:
             #정지
-            docking.thruster_speed_L=1500
-            docking.thruster_speed_R=1500
+            pass
             #1초 정도 정지 후 
             # 선속 결정
             #u_thruster = docking.thruster_station
@@ -1075,6 +1089,8 @@ def docking_part(auto):
             u_thruster = False
             docking.thruster_speed_L = 1500
             docking.thruster_speed_R = 1500
+            # docking.thrusterL_pub.publish(1500)
+            # docking.thrusterR_pub.publish(1500)
             detected = docking.check_board()  # 타겟이 탐지 되었는가?
             docking.insert_the_borad_target()
             docking.use_the_board = True
@@ -1095,15 +1111,21 @@ def docking_part(auto):
         #         u_thruster = False
             
         elif docking.state == 4:
+            u_thruster = False
+
             error_angle = oa.calc_desire_angle(
                     danger_angles=danger_angles,
                     angle_to_goal=docking.psi_goal,
                     angle_range=docking.ob_angle_range,
                 )
             if abs(error_angle) > 5:
-                docking.thruster_speed_L=1300
-                docking.thruster_speed_R=1600
+                docking.thruster_speed_L=1650
+                docking.thruster_speed_R=1300
+                # docking.thrusterL_pub.publish(1650)
+                # docking.thrusterR_pub.publish(1300)
             else:
+                docking.thruster_speed_L=1500
+                docking.thruster_speed_R=1500
                 u_thruster = False
                 docking.start_time = time.time()
                 docking.check_head = True
@@ -1129,16 +1151,28 @@ def docking_part(auto):
                     if stop_time < 20:    
                         docking.target = []  # 타겟 정보 초기화(못 찾음)
                         docking.target_found = False  # 타겟 미발견 플래그
-                        docking.thrusterL_pub.publish(1550)
-                        docking.thrusterR_pub.publish(1550)
+                        docking.thrusterL_pub.publish(1540)
+                        docking.thrusterR_pub.publish(1540)
                     else:
-                        return
+                        break
+                print(stop_time, "one")
+
             # 아직 충분히 탐색하기 전
             else:
                 docking.target_found = False  # 타겟 미발견 플래그
+                end_time = time.time()
+                stop_time = end_time - docking.start_time
+                if stop_time < 20:    
+                    docking.target = []  # 타겟 정보 초기화(못 찾음)
+                    docking.target_found = False  # 타겟 미발견 플래그
+                    docking.thrusterL_pub.publish(1550)
+                    docking.thrusterR_pub.publish(1550)
+                else:
+                    break
+            print(stop_time, "two")
 
             # 에러각 계산 방식 (1)
-            error_angle = docking.station_dir - docking.psi
+            # error_angle = docking.station_dir - docking.psi
             error_angle = rearrange_angle(error_angle)
             u_thruster = False
 
@@ -1165,7 +1199,7 @@ def docking_part(auto):
                         #start_straight += 1
                         #docking.stop_cnt += 1  # 몇 번 루프를 돌 동안 정지
                         if start_straight < docking.find_time:
-                            error_angle = docking.station_dir - docking.psi
+                            # error_angle = docking.station_dir - docking.psi
                             error_angle = rearrange_angle(error_angle)
                             #앵글 각도 맞추기
                             print(start_straight)
@@ -1184,9 +1218,9 @@ def docking_part(auto):
                     else:
                         #직진 들어왔다고 판단 직진 쓰러스트
                         end_time = time.time()
-                        stop_time = end_time - docking.start_time
+                        stop_time = end_time - docking.start_time2
                         if stop_time > 10:    
-                            return
+                            break
                         error_angle = 0
                         #직진
                 else:
@@ -1216,9 +1250,10 @@ def docking_part(auto):
                 docking.thruster_speed_R=1550
                 pass
         else:
+            pass
             #정지
-            docking.thruster_speed_L=1500
-            docking.thruster_speed_R=1500
+            # docking.thruster_speed_L=1500
+            # docking.thruster_speed_R=1500
             #1초 정도 정지 후 
             # 선속 결정
             #u_thruster = docking.thruster_station

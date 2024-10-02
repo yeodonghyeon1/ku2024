@@ -285,6 +285,7 @@ def main():
             if arrived:  # current goal in and change goal
                 start = time.time()
                 while True:
+                    print("aaaaaaaaa")
                     end = time.time()
                     stop_time = end-start
                     self_stop_time  = stop_time
@@ -302,6 +303,8 @@ def main():
                     else:
                         auto.set_next_goal()
                         break
+                    rospy.sleep(0.1)
+
             else:
                 auto.trajectory.append([auto.boat_x, auto.boat_y])  # 이동 경로 추가
                 ###move and add the next goal
@@ -349,14 +352,14 @@ def main():
                 PID_distance = distance_PID.update(auto.distance_to_goal)
                 #-----------------edit----------------------------------------------------#
                 #1900 1100
-                thruster_speed_L=1560
-                thruster_speed_R=1560
-                limit_go_speed = 1750
-                limit_back_speed = 1350
+                thruster_speed_L=1650
+                thruster_speed_R=1650
+                limit_go_speed = 1900 #1750
+                limit_back_speed = 1100 #1350
                 PID_distance_value = 8
 
-                static_speed_L = 1700
-                static_speed_R = 1700
+                static_speed_L = 1650
+                static_speed_R = 1300
 
                 #-------------------------------------------------------------------------#
 
@@ -392,6 +395,8 @@ def main():
                 auto.thrusterR_pub.publish(int(thruster_speed_R))
 
                 
+                # auto.thrusterL_pub.publish(int(static_speed_L))
+                # auto.thrusterR_pub.publish(int(static_speed_R))
 
                 # 현 상태 출력 및 시각화
                 print("")

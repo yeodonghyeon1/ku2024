@@ -1,5 +1,5 @@
 # 도착 인정 범위 (meters)
-goal_range: 2.3
+goal_range: 2.5 #2.3
 
 # 장애물 탐지 (거리) 범위 (meters)
 ob_dist_range : 2.0 #2.0
@@ -40,7 +40,7 @@ thruster_speed : 1550
 
 
 # 도착 인정 범위 (meters)
-arrival_range: 2.3
+arrival_range: 2.5
 
 # 서보모터 회전 범위 (deg)
 angle_range: [-90, 90]
@@ -123,30 +123,45 @@ color_range : {
 
 #outside
   red: {
-    color1_lower: 0,
-    color1_upper: 90,
-    color2_lower: 145,
+    color1_lower: 137,
+    color1_upper: 179,
+    color2_lower: 130,
     color2_upper: 255,
-    color3_lower: 83,
+    color3_lower: 0,
     color3_upper: 255
   },
-  green: {
-    color1_lower: 40, 
-    color1_upper: 100,
-    color2_lower: 61,
-    color2_upper: 255, 
+  red_2: {
+    color1_lower: 176,
+    color1_upper: 179,
+    color2_lower: 0,
+    color2_upper: 255,
     color3_lower: 0,
-    color3_upper: 250,
+    color3_upper: 255
   },
   brown: {
-    color1_lower: 3, 
-    color1_upper: 11,
-    color2_lower: 62,
-    color2_upper: 147, 
-    color3_lower: 107,
-    color3_upper: 159,
+    color1_lower: 0, 
+    color1_upper: 17,
+    color2_lower: 8,
+    color2_upper: 255, 
+    color3_lower: 219,
+    color3_upper: 255,
   },  
-
+  blue: {
+    color1_lower: 116,
+    color1_upper: 129,
+    color2_lower: 94,
+    color2_upper: 162,
+    color3_lower: 217,
+    color3_upper: 255
+  },
+  outsude: {
+    color1_lower: 0,
+    color1_upper: 0,
+    color2_lower: 0,
+    color2_upper: 4,
+    color3_lower: 207,
+    color3_upper: 247
+  },
 }
 
 board_color_range : {
@@ -178,10 +193,10 @@ board_color_range : {
 #outside
   red: {
     color1_lower: 0,
-    color1_upper: 14,
-    color2_lower: 53,
+    color1_upper: 11,
+    color2_lower: 20,
     color2_upper: 255,
-    color3_lower: 209,
+    color3_lower: 233,
     color3_upper: 255
   },
   red_2: {
