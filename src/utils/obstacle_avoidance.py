@@ -154,10 +154,11 @@ def calc_desire_angle(danger_angles, angle_to_goal, angle_range):
             * min/max 계산법 이용 (현재 사용 중)
     """
     safe_angle = 0
-
+    
     # 범위 내 모두 장애물임. 목표점 방향으로 각도 선택
     if len(danger_angles) == (angle_range[1] - angle_range[0]) + 1:
-        return angle_to_goal
+        return 500
+        # return angle_to_goal
 
     # 범위 내 장애물 없음. 목표점 방향으로 각도 선택
     elif len(danger_angles) == 0:

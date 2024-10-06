@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
-	<arg name="filename" default="_2024-10-02-12-51-09.bag" /> 
+	<arg name="filename" default="_2024-10-06-13-42-17.bag" /> 
 	<node pkg="rosbag" type="play" name="rosbag_record" required="true" output="screen" args="/media/jetson/data/rosbag/$(arg filename)"  />
 	<node pkg="rviz" type="rviz" name="rviz_auto" args="-d $(find ku2023)/rviz/rviz_conf_auto.rviz" />
 	<node name="usb_cam_color" pkg="ku2023" type="usb_cam_color.py" />
 
 </launch>
-
+<!-- _2024-10-03-13-59-15.bag -->
 
 <!--etk error _2024-09-12-15-31-18.bag-->
 <!-- fail to waypoint 2-->
@@ -17,3 +17,26 @@
 
 
 <!-- image _2024-09-28-15-04-50.bag-->
+
+
+<!--1650 1650 angle * 3  lidar 3.0 _2024-10-03-13-47-57.bag  #best2 33s no hit--> 
+
+<!--1750 1750 angle * 3  lidar 3.0 _2024-10-03-13-54-09.bag #best1- 27s one hit 42s-->
+
+
+<!-- 1900 1900 angle * 5 lidar 4.0 _2024-10-03-15-13-55.bag -->
+
+<!--1750 1750 angle * 4 lidar 4.0 _2024-10-03-15-39-34.bag -->
+
+<!--1750 1750 angle * 3 lidar 4.0 _2024-10-03-15-50-45.bag -->
+
+
+<!-- _2024-10-04-10-58-52.bag gps1-->
+
+<!-- image friday _2024-10-04-11-07-11.bag -->
+
+
+<!--all _2024-10-04-13-40-07.bag-->
+<!--all _2024-10-04-13-42-46.bag -->
+
+

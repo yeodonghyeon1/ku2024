@@ -867,7 +867,7 @@ def main():
                         thruster_speed_R = 1400
                         auto.thrusterL_pub.publish(1430)
                         auto.thrusterR_pub.publish(1400)
-                    elif stop_time < 5:
+                    elif stop_time < 4:
                         thruster_speed_L = 1500    
                         thruster_speed_R = 1500
                         auto.thrusterL_pub.publish(1500)
@@ -884,8 +884,9 @@ def main():
                     auto.set_next_goal() 
                 else:
                     print("state", auto.waypoint_idx)
+                    auto.sec_oc = True
                     if auto.waypoint_idx == 5:
-                        auto.sec_oc = False
+                        auto.sec_oc = True
                     auto.trajectory.append([auto.boat_x, auto.boat_y])  # 이동 경로 추가
                     ###move and add the next goal
                     # 현재 heading에서 목표로 갈 때 돌려야 할 각도 업데이트
@@ -939,10 +940,10 @@ def main():
 
                     #-----------------edit----------------------------------------------------#
 
-                    thruster_speed_L=1550
-                    thruster_speed_R=1550
-                    limit_go_speed = 1700
-                    limit_back_speed = 1300
+                    thruster_speed_L=1560
+                    thruster_speed_R=1560
+                    limit_go_speed = 1900
+                    limit_back_speed = 1100
                     PID_distance_value = 8
 
                     #------------------------------67-------------------------------------------#
@@ -1014,25 +1015,18 @@ def main():
                             auto.thrusterR_pub.publish(1200) 
                     else:
                         if auto.stop == False:
-                           # if error_angle < -3.0: #go light 
-                           #     thruster_l= 1400
-                           #     thruster_r= 1550
-                           # elif error_angle > 3.0 : #go left
-                           #     thruster_l= 1550
-                           #     thruster_r= 1400
-                            if error_angle < -6.0: #go light
+                            if error_angle < -6.0: #go light 
                                 thruster_l= 1300
                                 thruster_r= 1700
                             elif error_angle > 6.0 : #go left
-                                thruster_l= 1700
-                                thruster_r= 1300
-                            elif error_angle < -3.0: #go light
-                                thruster_l= 1400
-                                thruster_r= 1600
-                            elif error_angle > 3.0 : #go left
-                                thruster_l= 1600
-                                thruster_r= 1400
+                                thruster_l= 1650
+                                thruster_r= 1700
+                            elif error_angle > 6.0 : #go left
+                                thruster_l= 1650
+                                thruster_r= 1700 
                             else:
+                            elif error_angle > 6.0 : #go left
+                                thruster_l= 1650                                                                                                        thruster_r= 1700
                                 thruster_l= 1550
                                 thruster_r= 1550
                             auto.thrusterL_pub.publish(int(thruster_r))

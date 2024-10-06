@@ -21,7 +21,11 @@ int val1;
 int val2;
 int relaypin = 10;
 
-int neoPixelPin = 22;
+int rpin = 22;
+int gpin = 24;
+int bpin = 26;
+
+int neoPixelPin = 18;
 int numPixels = 144;
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800); // Fixed this line
 
@@ -50,6 +54,10 @@ void setup() {
   strip.begin();
   strip.show();
   strip.clear();
+
+  pinMode(rpin, OUTPUT);
+  pinMode(gpin, OUTPUT);
+  pinMode(bpin, OUTPUT);
 
   nh.initNode();
   nh.subscribe(sub1);
@@ -80,11 +88,26 @@ void loop() {
     digitalWrite(8, HIGH);
     digitalWrite(9, LOW);
     autonomous();
-    setColor(0, 255, 0); // Green
+    blinkGreen();
   } else if (ch5 > 1450) {
     digitalWrite(8, LOW);
     digitalWrite(9, HIGH);
     rc();
-    setColor(255, 0, 0); // Red
+    blinkRed();
   }
+}
+
+
+void blinkGreen(){
+  digitalWrite(gpin, HIGH);
+  delay(100);
+  digitalWrite(gpin, LOW);
+  delay(100);
+}
+
+void blinkRed(){
+  digitalWrite(rpin, HIGH);
+  delay(100);
+  digitalWrite(rpin, LOW);
+  delay(100);
 }

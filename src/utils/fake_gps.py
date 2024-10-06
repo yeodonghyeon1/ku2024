@@ -3,17 +3,15 @@ import rospy
 from sensor_msgs.msg import NavSatFix
 
 fake_gps=NavSatFix()
-fake_gps.latitude=35.1793306
-fake_gps.longitude=128.5541888
-fake_gps.altitude=82.422
+fake_gps.latitude=35.0693769
+fake_gps.longitude=128.5789412
+fake_gps.altitude=82.401
 # [35.1018797, 128.4992288, 100.0]
 def new_fake_gps_callback(msg):
     global fake_gps
     fake_gps.latitude = msg.latitude
     fake_gps.longitude=msg.longitude
     fake_gps.altitude=msg.altitude
-
-
 
 def main():
     rospy.init_node('fake_gps', anonymous=True)
@@ -25,7 +23,7 @@ def main():
     # fake_gps.longitude -= 0.0030
 
     while not rospy.is_shutdown():
-        fake_gps.latitude += 0.0000003
+        fake_gps.latitude += 0.0000000
         fake_gps.longitude += 0.0000003
 
         pub.publish(fake_gps)

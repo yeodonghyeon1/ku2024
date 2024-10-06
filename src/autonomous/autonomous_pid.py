@@ -265,6 +265,9 @@ def main():
     util_n =37 ## 5~7
     fix_imu=0.0
     imu_fix = True
+
+
+
     while not auto.is_all_connected():
         rospy.sleep(0.2)
     print("\n{:<>70}".format(" All Connected !"))
@@ -306,6 +309,11 @@ def main():
                     rospy.sleep(0.1)
 
             else:
+                if auto.waypoint_idx == 3:
+                    #thruster_speed_L=1580
+                    #thruster_speed_R=1580
+                    pass
+
                 auto.trajectory.append([auto.boat_x, auto.boat_y])  # 이동 경로 추가
                 ###move and add the next goal
                 # 현재 heading에서 목표로 갈 때 돌려야 할 각도 업데이트
@@ -350,6 +358,8 @@ def main():
 
                 PID_angle = angle_PID.update(error_angle)
                 PID_distance = distance_PID.update(auto.distance_to_goal)
+
+
                 #-----------------edit----------------------------------------------------#
                 #1900 1100
                 thruster_speed_L=1650
@@ -358,13 +368,14 @@ def main():
                 limit_back_speed = 1100 #1350
                 PID_distance_value = 8
 
-                static_speed_L = 1650
-                static_speed_R = 1300
+                static_speed_L = 1500
+                static_speed_R = 1500
 
                 #-------------------------------------------------------------------------#
 
+
                 PID_distance = int(abs(math.log(pow(PID_distance, PID_distance_value), 2)))
-                PID_angle = int(PID_angle * 3)
+                PID_angle = int(PID_angle * 3) # 3
                 if error_angle < 0:
                     thruster_speed_L = thruster_speed_L + abs(PID_angle)
                     thruster_speed_R = thruster_speed_R - abs(PID_angle)
@@ -395,8 +406,8 @@ def main():
                 auto.thrusterR_pub.publish(int(thruster_speed_R))
 
                 
-                # auto.thrusterL_pub.publish(int(static_speed_L))
-                # auto.thrusterR_pub.publish(int(static_speed_R))
+                #auto.thrusterL_pub.publish(int(static_speed_L))
+                #auto.thrusterR_pub.publish(int(static_speed_R))
 
                 # 현 상태 출력 및 시각화
                 print("")

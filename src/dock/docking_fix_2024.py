@@ -893,7 +893,6 @@ def main():
                 end_time = time.time()
                 stop_time = end_time - docking.start_time
                 if stop_time < 20000000:    
-                    docking.target = []  # 타겟 정보 초기화(못 찾음)
                     docking.target_found = False  # 타겟 미발견 플래그
                     docking.thrusterL_pub.publish(1540)
                     docking.thrusterR_pub.publish(1540)
@@ -957,6 +956,10 @@ def main():
                         #직진
                 else:
                     pass
+                end_time = time.time()
+                stop_time = end_time -docking.start_time2
+                if stop_time > 20:
+                    break
             except:
                 pass
 
@@ -1144,31 +1147,59 @@ def docking_part(auto):
                 if docking.detected_cnt >= docking.target_detect_cnt:
                     docking.target = docking.check_target(return_target=True)  # 타겟 정보
                     docking.target_found = True  # 타겟 발견 플래그
+                    docking.start_time2 = time.time()
                 # 타겟 마크가 충분히 검출되지 않아 미검출로 판단
                 else:
                     end_time = time.time()
                     stop_time = end_time - docking.start_time
-                    if stop_time < 20:    
+                    if stop_time < 24:    
                         docking.target = []  # 타겟 정보 초기화(못 찾음)
                         docking.target_found = False  # 타겟 미발견 플래그
-                        docking.thrusterL_pub.publish(1540)
-                        docking.thrusterR_pub.publish(1540)
+                        # docking.thrusterL_pub.publish(1540)
+                        # docking.thrusterR_pub.publish(1540)
                     else:
                         break
+                    
                 print(stop_time, "one")
 
             # 아직 충분히 탐색하기 전
             else:
+                error_angle = oa.calc_desire_angle(
+                        danger_angles=danger_angles,
+                        angle_to_goal=docking.psi_goal,
+                        angle_range=docking.ob_angle_range,
+                    )
+
                 docking.target_found = False  # 타겟 미발견 플래그
                 end_time = time.time()
                 stop_time = end_time - docking.start_time
-                if stop_time < 20:    
-                    docking.target = []  # 타겟 정보 초기화(못 찾음)
-                    docking.target_found = False  # 타겟 미발견 플래그
-                    docking.thrusterL_pub.publish(1550)
-                    docking.thrusterR_pub.publish(1550)
+                print(stop_time)
+                if stop_time > 24:   
+                        break  
+                elif stop_time > 16:
+                    if error_angle < 15:
+                        docking.thruster_speed_L=1300
+                        docking.thruster_speed_R=1650
+                    else:
+                        docking.thruster_speed_L=1500
+                        docking.thruster_speed_R=1500
+                elif stop_time > 8:
+                    if error_angle > -15:
+                        docking.thruster_speed_L=1650
+                        docking.thruster_speed_R=1300
+                    else:
+                        docking.thruster_speed_L=1500
+                        docking.thruster_speed_R=1500
                 else:
-                    break
+                        docking.thruster_speed_L=1500
+                        docking.thruster_speed_R=1500
+
+                # if stop_time < 20:    
+                #     docking.target_found = False  # 타겟 미발견 플래그
+                #     docking.thrusterL_pub.publish(1540)
+                #     docking.thrusterR_pub.publish(1540)
+                # else:
+                #     break
             print(stop_time, "two")
 
             # 에러각 계산 방식 (1)
@@ -1225,6 +1256,10 @@ def docking_part(auto):
                         #직진
                 else:
                     pass
+                end_time = time.time()
+                stop_time = end_time - docking.start_time2
+                if stop_time > 10:
+                    break
             except:
                 pass
 
