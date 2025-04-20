@@ -47,11 +47,32 @@ ku2024/
 
 ## 주요 ROS 토픽 📡
 
+### 센서 토픽
 | 토픽 이름 | 타입 | 설명 |
 |-----------|------|------|
-| `/sensor_data` | `SensorData` | 센서 데이터 발행 |
-| `/control_cmd` | `ControlCommand` | 제어 명령 구독 |
-| `/parameter_updates` | `dynamic_reconfigure/Config` | 파라미터 업데이트 |
+| `/imu/data` | `sensor_msgs/Imu` | IMU 센서 데이터 |
+| `/imu/mag` | `sensor_msgs/MagneticField` | 자기장 센서 데이터 |
+| `/heading` | `std_msgs/Float64` | 선박의 헤딩 각도 |
+| `/enu_position` | `geometry_msgs/Point` | 선박의 ENU 좌표계 위치 |
+| `/pointcloud/scan_data` | `sensor_msgs/LaserScan` | LiDAR 스캔 데이터 |
+| `/usb_cam/image_raw` | `sensor_msgs/Image` | 카메라 이미지 |
+
+### 제어 토픽
+| 토픽 이름 | 타입 | 설명 |
+|-----------|------|------|
+| `/thrusterL` | `std_msgs/UInt16` | 좌측 추진기 제어 |
+| `/thrusterR` | `std_msgs/UInt16` | 우측 추진기 제어 |
+| `/servo` | `std_msgs/UInt16` | 서보 모터 제어 |
+
+### 장애물 및 시각화 토픽
+| 토픽 이름 | 타입 | 설명 |
+|-----------|------|------|
+| `/obstacles` | `ku2023/ObstacleList` | 감지된 장애물 목록 |
+| `/visual_rviz` | `visualization_msgs/MarkerArray` | RViz 시각화 마커 |
+| `/angles_rviz` | `visualization_msgs/MarkerArray` | 각도 시각화 |
+| `/points_rviz` | `visualization_msgs/MarkerArray` | 포인트 시각화 |
+| `/goal_rviz` | `visualization_msgs/Marker` | 목표점 시각화 |
+| `/traj_rviz` | `visualization_msgs/Marker` | 경로 시각화 |
 
 ## 설치 방법 💻
 
@@ -139,14 +160,15 @@ roslaunch ku2024 visualization.launch
 ```python
 #!/usr/bin/env python2
 import rospy
-from ku2024.msg import SensorData
+from std_msgs.msg import Float64
 
-def sensor_callback(data):
-    rospy.loginfo("Received sensor data: %s", data)
+def heading_callback(data):
+    heading = data.data  # 선박의 헤딩 각도
+    rospy.loginfo("Current heading: %f", heading)
 
 def main():
-    rospy.init_node('sensor_subscriber', anonymous=True)
-    rospy.Subscriber('sensor_data', SensorData, sensor_callback)
+    rospy.init_node('heading_subscriber', anonymous=True)
+    rospy.Subscriber('/heading', Float64, heading_callback)
     rospy.spin()
 
 if __name__ == '__main__':
@@ -160,23 +182,23 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python2
 import rospy
-from ku2024.msg import ControlCommand
+from std_msgs.msg import UInt16
 
-def publish_command():
-    pub = rospy.Publisher('control_cmd', ControlCommand, queue_size=10)
-    rospy.init_node('command_publisher', anonymous=True)
+def control_thrusters():
+    thrusterL_pub = rospy.Publisher('/thrusterL', UInt16, queue_size=10)
+    thrusterR_pub = rospy.Publisher('/thrusterR', UInt16, queue_size=10)
+    rospy.init_node('thruster_controller', anonymous=True)
     rate = rospy.Rate(10)
     
     while not rospy.is_shutdown():
-        cmd = ControlCommand()
-        cmd.command_type = 1
-        cmd.value = 100
-        pub.publish(cmd)
+        # 추진기 제어 (0-255)
+        thrusterL_pub.publish(128)  # 50% 출력
+        thrusterR_pub.publish(128)  # 50% 출력
         rate.sleep()
 
 if __name__ == '__main__':
     try:
-        publish_command()
+        control_thrusters()
     except rospy.ROSInterruptException:
         pass
 ```
