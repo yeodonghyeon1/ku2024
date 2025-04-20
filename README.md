@@ -1,6 +1,7 @@
 # KU2024 ROS1 프로젝트 🤖
 
 https://youtu.be/r8feBDOcLoM
+https://youtu.be/xjHE_BN1IxE
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![ROS](https://img.shields.io/badge/ROS-Melodic-brightgreen)](http://wiki.ros.org/melodic)
