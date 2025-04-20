@@ -1,4 +1,4 @@
-# KU2024 ROS1 프로젝트 🤖
+# KU2024 자율운항 ROS1 프로젝트 🤖
 
 https://youtu.be/r8feBDOcLoM
 https://youtu.be/xjHE_BN1IxE
@@ -9,7 +9,7 @@ https://youtu.be/xjHE_BN1IxE
 
 ## 프로젝트 소개 📝
 
-KU2024는 ROS1 Melodic 기반의 로봇 제어 및 센서 데이터 처리 프로젝트입니다. Arduino와 연동하여 하드웨어 제어가 가능하며, 다양한 센서 데이터를 처리하고 시각화할 수 있습니다.
+KU2024는 ROS1 Melodic 기반의 자율운항 제어 및 센서 데이터 처리 프로젝트입니다. Arduino와 연동하여 하드웨어 제어가 가능하며, 다양한 센서 데이터를 처리하고 시각화할 수 있습니다.
 
 ## 주요 기능 ⚡
 
