@@ -136,24 +136,29 @@ cd ~/catkin_ws/src/ku2024/Arduino/211
 
 ## 실행 방법 🚀
 
-1. ROS 마스터 실행
+1. autonomous 실행
 ```bash
-roscore
+roslaunch ku2024 autonomous.launch
 ```
 
-2. Arduino 노드 실행
+2. docking 실행
 ```bash
-rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=115200
+roslaunch ku2024 docking.launch
 ```
 
-3. 센서 데이터 처리 노드 실행
+3. autnomous+docking 실행
 ```bash
-roslaunch ku2024 sensor_processing.launch
+roslaunch ku2024 full_version.launch
 ```
 
-4. 시각화 실행
+4. 실내 테스트 gps
 ```bash
-roslaunch ku2024 visualization.launch
+roslaunch ku2024 fake_gps.launch
+```
+
+5. record 확인
+```bash
+roslaunch ku2024 record_rviz.launch
 ```
 
 ## 주요 코드 예제 💻
